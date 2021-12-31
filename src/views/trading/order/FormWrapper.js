@@ -1,14 +1,8 @@
 import PropTypes from 'prop-types';
-
-// material-ui
 import { Box } from '@mui/material';
-
-// project import
 import MainCard from 'ui-component/cards/MainCard';
 
-// ==============================|| AUTHENTICATION CARD WRAPPER ||============================== //
-
-const AuthCardWrapper = ({ children, ...other }) => (
+const FormWrapper = ({ children, ...other }) => (
     <MainCard
         sx={{
             maxWidth: { xs: 400, lg: 475 },
@@ -25,8 +19,8 @@ const AuthCardWrapper = ({ children, ...other }) => (
     </MainCard>
 );
 
-AuthCardWrapper.propTypes = {
+FormWrapper.propTypes = {
     children: PropTypes.node
 };
 
-export default AuthCardWrapper;
+export default FormWrapper;

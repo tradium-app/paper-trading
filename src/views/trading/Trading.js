@@ -1,30 +1,23 @@
-import { Link } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
-import { Divider, Grid, Stack, Typography, useMediaQuery } from '@mui/material';
+import { Grid, Stack, Typography, useMediaQuery } from '@mui/material';
 
-import AuthWrapper1 from '../pages/authentication/AuthWrapper1';
-import AuthCardWrapper from '../pages/authentication/AuthCardWrapper';
-import AuthLogin from '../pages/authentication/auth-forms/AuthLogin';
-import Logo from 'ui-component/Logo';
-import AuthFooter from 'ui-component/cards/AuthFooter';
+import BackgroundWrapper from './BackgroundWrapper';
+import FormWrapper from './order/FormWrapper';
+import AuthLogin from './order/OrderForm';
 
 const Login = () => {
     const theme = useTheme();
     const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
 
     return (
-        <AuthWrapper1>
+        <BackgroundWrapper>
             <Grid container direction="column" justifyContent="flex-end" sx={{ minHeight: '100vh' }}>
                 <Grid item xs={12}>
-                    <Grid container justifyContent="center" alignItems="center" sx={{ minHeight: 'calc(100vh - 68px)' }}>
-                        <Grid item sx={{ m: { xs: 1, sm: 3 }, mb: 0 }}>
-                            <AuthCardWrapper>
-                                <Grid container spacing={2} alignItems="center" justifyContent="center">
-                                    <Grid item sx={{ mb: 3 }}>
-                                        <Link to="#">
-                                            <Logo />
-                                        </Link>
-                                    </Grid>
+                    <Grid container sx={{ minHeight: 'calc(100vh - 68px)' }}>
+                        <Grid item lg={9} mb={9} xs={12} />
+                        <Grid item lg={3} mb={3} xs={12}>
+                            <FormWrapper>
+                                <Grid container spacing={2} justifyContent="center">
                                     <Grid item xs={12}>
                                         <Grid
                                             container
@@ -37,16 +30,9 @@ const Login = () => {
                                                     <Typography
                                                         color={theme.palette.secondary.main}
                                                         gutterBottom
-                                                        variant={matchDownSM ? 'h3' : 'h2'}
+                                                        variant={matchDownSM ? 'h3' : 'h3'}
                                                     >
-                                                        Hi, Welcome Back
-                                                    </Typography>
-                                                    <Typography
-                                                        variant="caption"
-                                                        fontSize="16px"
-                                                        textAlign={matchDownSM ? 'center' : 'inherit'}
-                                                    >
-                                                        Enter your credentials to continue
+                                                        Buy/Sell Order
                                                     </Typography>
                                                 </Stack>
                                             </Grid>
@@ -55,31 +41,13 @@ const Login = () => {
                                     <Grid item xs={12}>
                                         <AuthLogin />
                                     </Grid>
-                                    <Grid item xs={12}>
-                                        <Divider />
-                                    </Grid>
-                                    <Grid item xs={12}>
-                                        <Grid item container direction="column" alignItems="center" xs={12}>
-                                            <Typography
-                                                component={Link}
-                                                to="/pages/register/register3"
-                                                variant="subtitle1"
-                                                sx={{ textDecoration: 'none' }}
-                                            >
-                                                Don&apos;t have an account?
-                                            </Typography>
-                                        </Grid>
-                                    </Grid>
                                 </Grid>
-                            </AuthCardWrapper>
+                            </FormWrapper>
                         </Grid>
                     </Grid>
                 </Grid>
-                <Grid item xs={12} sx={{ m: 3, mt: 1 }}>
-                    <AuthFooter />
-                </Grid>
             </Grid>
-        </AuthWrapper1>
+        </BackgroundWrapper>
     );
 };
 
