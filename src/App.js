@@ -1,8 +1,8 @@
 import { useSelector } from 'react-redux';
-
+import { ApolloProvider } from '@apollo/client/react';
 import { ThemeProvider } from '@mui/material/styles';
 import { CssBaseline, StyledEngineProvider } from '@mui/material';
-
+import graphqlClient from './graphqlClient';
 // routing
 import Routes from 'routes';
 
@@ -22,7 +22,9 @@ const App = () => {
             <ThemeProvider theme={themes(customization)}>
                 <CssBaseline />
                 <NavigationScroll>
-                    <Routes />
+                    <ApolloProvider client={graphqlClient}>
+                        <Routes />
+                    </ApolloProvider>
                 </NavigationScroll>
             </ThemeProvider>
         </StyledEngineProvider>

@@ -3,7 +3,8 @@ import { Grid, Stack, Typography, useMediaQuery } from '@mui/material';
 
 import BackgroundWrapper from './BackgroundWrapper';
 import FormWrapper from './order/FormWrapper';
-import AuthLogin from './order/OrderForm';
+import OrderForm from './order/OrderForm';
+import Chart from './chart/Index';
 
 const Login = () => {
     const theme = useTheme();
@@ -14,7 +15,9 @@ const Login = () => {
             <Grid container direction="column" justifyContent="flex-end" sx={{ minHeight: '100vh' }}>
                 <Grid item xs={12}>
                     <Grid container sx={{ minHeight: 'calc(100vh - 68px)' }}>
-                        <Grid item lg={9} mb={9} xs={12} />
+                        <Grid item lg={9} mb={9} xs={12}>
+                            <Chart />
+                        </Grid>
                         <Grid item lg={3} mb={3} xs={12}>
                             <FormWrapper>
                                 <Grid container spacing={2} justifyContent="center">
@@ -39,7 +42,7 @@ const Login = () => {
                                         </Grid>
                                     </Grid>
                                     <Grid item xs={12}>
-                                        <AuthLogin />
+                                        <OrderForm />
                                     </Grid>
                                 </Grid>
                             </FormWrapper>

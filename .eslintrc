@@ -4,7 +4,14 @@
         "browser": true,
         "es2021": true
     },
-    "extends": ["airbnb", "prettier", "plugin:react/jsx-runtime", "plugin:jsx-a11y/recommended", "plugin:react-hooks/recommended"],
+    "extends": [
+        "react-app",
+        "airbnb",
+        "prettier",
+        "plugin:react/jsx-runtime",
+        "plugin:jsx-a11y/recommended",
+        "plugin:react-hooks/recommended"
+    ],
     "settings": {
         "import/resolver": {
             "node": {
@@ -40,6 +47,11 @@
                 "ignoreRestSiblings": false
             }
         ],
+        "one-var": "off",
+        "no-unused-expressions": "off",
+        "no-plusplus": "off",
+        "no-use-before-define": "off",
+        "arrow-body-style": "off",
         "prettier/prettier": [
             2,
             {
