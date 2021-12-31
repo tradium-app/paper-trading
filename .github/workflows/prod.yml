@@ -19,4 +19,4 @@ jobs:
             - name: 🔨 Build Project
               run: |
                   yarn
-                  yarn build
+                  CI='' yarn build
