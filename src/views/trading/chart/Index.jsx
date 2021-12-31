@@ -25,8 +25,6 @@ const Chart = () => {
 	const [showEma26] = useLocalStorage('showEma26', 1)
 	const [showRSI] = useLocalStorage('showRSI', 1)
 
-	// const [showToast] = useIonToast();
-	// const [showAlert] = useIonAlert();
 	const containerId = useRef(null)
 	const { loading, error, data, refetch } = useQuery(GET_NEW_GAME_QUERY, {
 		fetchPolicy: 'no-cache',
@@ -41,7 +39,7 @@ const Chart = () => {
 
 	useEffect(() => {
 		containerId.current = createChart(containerId.current, {
-			width: 1000,
+			width: containerId.current.offsetWidth,
 			height: window.innerHeight,
 		})
 		setCandleSeries(containerId.current.addCandlestickSeries(candleSeriesOptions))
@@ -108,91 +106,106 @@ const Chart = () => {
 		]
 
 		candleSeries.setMarkers(markers)
+
+		var lastClose = priceData[priceData.length - 1].close
+		var lastIndex = priceData.length - 1
+
+		var targetIndex = lastIndex + 105 + Math.round(Math.random() + 30)
+		var targetPrice = getRandomPrice()
+
+		var currentIndex = lastIndex + 1
+		var currentBusinessDay = { day: 29, month: 5, year: 2019 }
+		var ticksInCurrentBar = 0
+		var currentBar = {
+			open: null,
+			high: null,
+			low: null,
+			close: null,
+			time: currentBusinessDay,
+		}
 	}
 
-	// const predict = (action) => {
-	//     if (predicted) {
-	//         let message = `You already ${currentProfit > 0 ? 'gained' : 'lost'} ${Math.abs(currentProfit).toLocaleString(undefined, {
-	//             maximumFractionDigits: 0
-	//         })}.  Press Next for new prediction.`;
+	function mergeTickToBar(price) {
+		if (currentBar.open === null) {
+			currentBar.open = price
+			currentBar.high = price
+			currentBar.low = price
+			currentBar.close = price
+		} else {
+			currentBar.close = price
+			currentBar.high = Math.max(currentBar.high, price)
+			currentBar.low = Math.min(currentBar.low, price)
+		}
+		candleSeries.update(currentBar)
+	}
 
-	//         showToast({
-	//             ...toastOptions,
-	//             message
-	//         });
+	function reset() {
+		candleSeries.setData(priceData)
+		lastClose = priceData[priceData.length - 1].close
+		lastIndex = priceData.length - 1
 
-	//         return;
-	//     } else if (skipped) {
-	//         showToast({
-	//             ...toastOptions,
-	//             message: 'Press Next for new prediction.'
-	//         });
-	//         return;
-	//     }
+		targetIndex = lastIndex + 5 + Math.round(Math.random() + 30)
+		targetPrice = getRandomPrice()
 
-	//     const newBalance = computeNewBalance(
-	//         action,
-	//         balance,
-	//         priceData[data.getNewGame.price_history.length - 1].close,
-	//         priceData[priceData.length - 1].close
-	//     );
+		currentIndex = lastIndex + 1
+		currentBusinessDay = { day: 29, month: 5, year: 2019 }
+		ticksInCurrentBar = 0
+	}
 
-	//     const change = Math.abs(newBalance - balance).toLocaleString(undefined, {
-	//         maximumFractionDigits: 0
-	//     });
+	function getRandomPrice() {
+		return 10 + Math.round(Math.random() * 10000) / 100
+	}
 
-	//     let message = newBalance > balance ? 'Bravo!. ' : 'Oops!. ';
-	//     message += `You ${newBalance > balance ? 'gained' : 'lost'} ${change}.`;
+	function nextBusinessDay(time) {
+		var d = new Date()
+		d.setUTCFullYear(time.year)
+		d.setUTCMonth(time.month - 1)
+		d.setUTCDate(time.day + 1)
+		d.setUTCHours(0, 0, 0, 0)
+		return {
+			year: d.getUTCFullYear(),
+			month: d.getUTCMonth() + 1,
+			day: d.getUTCDate(),
+		}
+	}
 
-	//     showToast({
-	//         ...toastOptions,
-	//         message
-	//     });
-
-	//     setCurrentProfit(newBalance - balance);
-	//     setBalance(newBalance);
-	//     setTransactions(transactions + 1);
-	//     newBalance > balance && setScore(score + 1);
-
-	//     containerId.current.applyOptions(afterPredictionChartOptions);
-	//     setPredicted(true);
-	// };
-
-	// const nextGame = () => {
-	//     setPredicted(false);
-	//     setSkipped(false);
-	//     refetch();
-	// };
-
-	// const skipGame = () => {
-	//     setSkipped(true);
-	// };
-
-	// const resetBalance = () => {
-	//     showAlert({
-	//         header: 'Losing money 😅 ?',
-	//         message: 'Want to reset balance to 10,000?',
-	//         buttons: [
-	//             'Cancel',
-	//             {
-	//                 text: 'Yes',
-	//                 handler: () => {
-	//                     setBalance(10000);
-	//                     setScore(0);
-	//                     setTransactions(0);
-	//                 }
-	//             }
-	//         ]
-	//     });
-	// };
+	if (!loading && !error && priceData) {
+		setInterval(function () {
+			var deltaY = targetPrice - lastClose
+			var deltaX = targetIndex - lastIndex
+			var angle = deltaY / deltaX
+			var basePrice = lastClose + (currentIndex - lastIndex) * angle
+			var noise = 0.1 - Math.random() * 0.2 + 1.0
+			var noisedPrice = basePrice * noise
+			mergeTickToBar(noisedPrice)
+			if (++ticksInCurrentBar === 5) {
+				// move to next bar
+				currentIndex++
+				currentBusinessDay = nextBusinessDay(currentBusinessDay)
+				currentBar = {
+					open: null,
+					high: null,
+					low: null,
+					close: null,
+					time: currentBusinessDay,
+				}
+				ticksInCurrentBar = 0
+				if (currentIndex === 5000) {
+					reset()
+					return
+				}
+				if (currentIndex === targetIndex) {
+					// change trend
+					lastClose = noisedPrice
+					lastIndex = currentIndex
+					targetIndex = lastIndex + 5 + Math.round(Math.random() + 30)
+					targetPrice = getRandomPrice()
+				}
+			}
+		}, 3000)
+	}
 
 	return <div ref={containerId} slot="fixed" />
-}
-
-const computeNewBalance = (action, initialBalance, purchasePrice, sellPrice) => {
-	const percentChange = (sellPrice - purchasePrice) / purchasePrice
-
-	return action === 'buy' ? initialBalance * (1 + percentChange) : initialBalance * (1 - percentChange)
 }
 
 export default Chart
