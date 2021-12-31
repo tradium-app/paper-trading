@@ -1,18 +1,18 @@
-import { lazy } from 'react';
-import Loadable from 'ui-component/Loadable';
-import MinimalLayout from 'layout/MinimalLayout';
+import { lazy } from 'react'
+import Loadable from 'ui-component/Loadable'
+import MinimalLayout from 'layout/MinimalLayout'
 
-const Trading = Loadable(lazy(() => import('views/trading/Trading')));
+const Trading = Loadable(lazy(() => import('views/trading/Trading')))
 
 const MainRoutes = {
-    path: '/',
-    element: <MinimalLayout />,
-    children: [
-        {
-            path: '/',
-            element: <Trading />
-        }
-    ]
-};
+	path: '/',
+	element: <MinimalLayout />,
+	children: [
+		{
+			path: '/',
+			element: <Trading />,
+		},
+	],
+}
 
-export default MainRoutes;
+export default MainRoutes
