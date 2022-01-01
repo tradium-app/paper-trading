@@ -1,12 +1,8 @@
 import { combineReducers } from 'redux'
-
-// reducer import
-import customizationReducer from './customizationReducer'
-
-// ==============================|| COMBINE REDUCER ||============================== //
+import tradingReducer from './tradingReducer'
 
 const reducer = combineReducers({
-	customization: customizationReducer,
+	trading: tradingReducer,
 })
 
 export default reducer

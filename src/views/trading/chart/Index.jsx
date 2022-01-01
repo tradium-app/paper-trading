@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { useQuery } from '@apollo/client'
 import { createChart } from 'lightweight-charts'
 import GET_NEW_GAME_QUERY from './Chart_Query'
@@ -7,6 +8,7 @@ import { useLocalStorage } from 'beautiful-react-hooks'
 import { emaPeriod, defaultChartOptions, afterPredictionChartOptions, candleSeriesOptions, volumeSeriesOptions, emaSeriesOptions } from './configs'
 import { Box, Fab } from '@mui/material'
 import PlayArrow from '@mui/icons-material/PlayArrow'
+import { SET_PRICE } from 'store/actions'
 
 const Chart = () => {
 	const containerId = useRef(null)
@@ -15,6 +17,8 @@ const Chart = () => {
 	const [emaSeries, setEmaSeries] = useState(null)
 	const [showEma26] = useLocalStorage('showEma26', 1)
 	const [showRSI] = useLocalStorage('showRSI', 1)
+	const [balance, setBalance] = useLocalStorage('balance', 10000)
+	const dispatch = useDispatch()
 
 	const { loading, error, data, refetch } = useQuery(GET_NEW_GAME_QUERY, {
 		fetchPolicy: 'no-cache',
@@ -54,6 +58,7 @@ const Chart = () => {
 			candleSeries.update(priceData[currentIndex])
 			volumeSeries.update(volumeData[currentIndex])
 			showEma26 && emaSeries.update(emaData[currentIndex - emaPeriod])
+			dispatch({ type: SET_PRICE, price: priceData[currentIndex].close })
 		}, 5000)
 	}
 
@@ -65,7 +70,10 @@ const Chart = () => {
 					<PlayArrow />
 				</Fab>
 				<Fab variant="extended" aria-label="edit">
-					Balance: 2300.99
+					{'Balance: '}
+					{balance.toLocaleString(undefined, {
+						maximumFractionDigits: 0,
+					})}
 				</Fab>
 			</Box>
 		</Box>

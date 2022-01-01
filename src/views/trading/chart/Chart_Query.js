@@ -3,11 +3,8 @@ import gql from 'graphql-tag'
 const GET_NEW_GAME_QUERY = gql`
 	query getNewGame {
 		getNewGame {
-			_id
 			symbol
 			timeStamp
-			willPriceIncrease
-			willPriceDecrease
 			price_history {
 				timeStamp
 				close

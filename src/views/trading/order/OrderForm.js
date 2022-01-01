@@ -4,10 +4,12 @@ import * as Yup from 'yup'
 import { Formik } from 'formik'
 import useScriptRef from 'hooks/useScriptRef'
 import AnimateButton from 'ui-component/extended/AnimateButton'
+import { useDispatch, useSelector } from 'react-redux'
 
 const OrderForm = ({ ...others }) => {
 	const theme = useTheme()
 	const scriptedRef = useScriptRef()
+	const trading = useSelector((state) => state.trading)
 
 	return (
 		<>
@@ -58,8 +60,18 @@ const OrderForm = ({ ...others }) => {
 							)}
 						</FormControl>
 						<Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
-							<Typography>Price: $100.23</Typography>
-							<Typography>Amt: $1000.34</Typography>
+							<Typography>
+								{'Price: '}
+								{trading.price.toLocaleString(undefined, {
+									maximumFractionDigits: 2,
+								})}
+							</Typography>
+							<Typography>
+								{'Amt: '}
+								{(values.quantity * trading.price).toLocaleString(undefined, {
+									maximumFractionDigits: 2,
+								})}
+							</Typography>
 						</Stack>
 
 						{errors.submit && (
