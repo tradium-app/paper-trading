@@ -6,15 +6,12 @@ import computeChartData from './computeChartData'
 import { useLocalStorage } from 'beautiful-react-hooks'
 import {
 	emaPeriod,
-	rsiPeriod,
-	toastOptions,
 	defaultChartOptions,
 	afterPredictionChartOptions,
 	candleSeriesOptions,
 	volumeSeriesOptions,
 	markerOptions,
 	emaSeriesOptions,
-	rsiSeriesOptions,
 } from './configs'
 
 const Chart = () => {
@@ -22,7 +19,6 @@ const Chart = () => {
 	const [candleSeries, setCandleSeries] = useState(null)
 	const [volumeSeries, setVolumeSeries] = useState(null)
 	const [emaSeries, setEmaSeries] = useState(null)
-	const [rsiSeries, setRsiSeries] = useState(null)
 	const [showEma26] = useLocalStorage('showEma26', 1)
 	const [showRSI] = useLocalStorage('showRSI', 1)
 
@@ -37,26 +33,33 @@ const Chart = () => {
 			height: window.innerHeight,
 		})
 		setCandleSeries(containerId.current.addCandlestickSeries(candleSeriesOptions))
+		setVolumeSeries(containerId.current.addHistogramSeries(volumeSeriesOptions))
+		setEmaSeries(containerId.current.addLineSeries(emaSeriesOptions))
 
 		containerId.current.timeScale().applyOptions({ rightOffset: 15 })
 	}, [])
 
-	let priceData, volumeData, emaData, rsiData, predictionPoint, currentIndex
+	let priceData, volumeData, emaData, predictionPoint, currentIndex
 
 	if (!loading && !error && data.getNewGame) {
-		;({ priceData, volumeData, emaData, rsiData } = computeChartData(data.getNewGame, showEma26, showRSI))
+		;({ priceData, volumeData, emaData } = computeChartData(data.getNewGame, showEma26, showRSI))
 		predictionPoint = priceData[data.getNewGame.price_history.length].time
 	}
 
 	if (!loading && !error && priceData) {
 		candleSeries.setData(priceData.slice(0, data.getNewGame.price_history.length))
-		currentIndex = data.getNewGame.price_history.length
+		volumeSeries.setData(volumeData.slice(0, data.getNewGame.price_history.length))
+		showEma26 && emaSeries.setData(emaData.filter((ed) => ed.time <= predictionPoint))
+
+		currentIndex = data.getNewGame.price_history.length - 1
 	}
 
 	if (!loading && !error && priceData) {
 		setInterval(function () {
 			currentIndex++
 			candleSeries.update(priceData[currentIndex])
+			volumeSeries.update(volumeData[currentIndex])
+			showEma26 && emaSeries.update(emaData[currentIndex - emaPeriod])
 		}, 5000)
 	}
 
