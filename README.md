@@ -2,6 +2,9 @@
 
 https://paper-trading.netlify.app
 
+### Screenshot
+![image](https://user-images.githubusercontent.com/503803/147860359-68d8584b-ada7-48c9-b552-0e9218c37017.png)
+
 ## Dev Setup Requirements
 
 -   `NodeJs 14`
