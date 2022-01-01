@@ -73,7 +73,7 @@ const OrderForm = ({ ...others }) => {
 									size="large"
 									type="submit"
 									variant="contained"
-									color="secondary"
+									color="success"
 								>
 									Buy
 								</Button>
@@ -88,7 +88,7 @@ const OrderForm = ({ ...others }) => {
 									size="large"
 									type="submit"
 									variant="contained"
-									color="secondary"
+									color="error"
 								>
 									Sell
 								</Button>

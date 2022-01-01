@@ -4,15 +4,7 @@ import { createChart } from 'lightweight-charts'
 import GET_NEW_GAME_QUERY from './Chart_Query'
 import computeChartData from './computeChartData'
 import { useLocalStorage } from 'beautiful-react-hooks'
-import {
-	emaPeriod,
-	defaultChartOptions,
-	afterPredictionChartOptions,
-	candleSeriesOptions,
-	volumeSeriesOptions,
-	markerOptions,
-	emaSeriesOptions,
-} from './configs'
+import { emaPeriod, defaultChartOptions, afterPredictionChartOptions, candleSeriesOptions, volumeSeriesOptions, emaSeriesOptions } from './configs'
 
 const Chart = () => {
 	const containerId = useRef(null)
@@ -30,7 +22,7 @@ const Chart = () => {
 	useEffect(() => {
 		containerId.current = createChart(containerId.current, {
 			width: containerId.current.offsetWidth,
-			height: window.innerHeight,
+			height: 700,
 		})
 		setCandleSeries(containerId.current.addCandlestickSeries(candleSeriesOptions))
 		setVolumeSeries(containerId.current.addHistogramSeries(volumeSeriesOptions))
@@ -63,7 +55,7 @@ const Chart = () => {
 		}, 5000)
 	}
 
-	return <div ref={containerId} slot="fixed" />
+	return <div ref={containerId} slot="test" />
 }
 
 export default Chart
