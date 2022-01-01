@@ -1,5 +1,5 @@
 import { useTheme } from '@mui/material/styles'
-import { Box, Button, FormControl, FormHelperText, InputLabel, OutlinedInput } from '@mui/material'
+import { Box, Button, FormControl, FormHelperText, InputLabel, OutlinedInput, Stack, Typography } from '@mui/material'
 import * as Yup from 'yup'
 import { Formik } from 'formik'
 import useScriptRef from 'hooks/useScriptRef'
@@ -48,7 +48,7 @@ const OrderForm = ({ ...others }) => {
 								onBlur={handleBlur}
 								onChange={handleChange}
 								label="Quantity"
-								inputProps={{}}
+								inputProps={{ step: '1' }}
 								autoComplete="off"
 							/>
 							{touched.quantity && errors.quantity && (
@@ -57,6 +57,10 @@ const OrderForm = ({ ...others }) => {
 								</FormHelperText>
 							)}
 						</FormControl>
+						<Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
+							<Typography>Price: $100.23</Typography>
+							<Typography>Amt: $1000.34</Typography>
+						</Stack>
 
 						{errors.submit && (
 							<Box sx={{ mt: 3 }}>

@@ -5,6 +5,8 @@ import GET_NEW_GAME_QUERY from './Chart_Query'
 import computeChartData from './computeChartData'
 import { useLocalStorage } from 'beautiful-react-hooks'
 import { emaPeriod, defaultChartOptions, afterPredictionChartOptions, candleSeriesOptions, volumeSeriesOptions, emaSeriesOptions } from './configs'
+import { Box, Fab } from '@mui/material'
+import PlayArrow from '@mui/icons-material/PlayArrow'
 
 const Chart = () => {
 	const containerId = useRef(null)
@@ -55,7 +57,19 @@ const Chart = () => {
 		}, 5000)
 	}
 
-	return <div ref={containerId} slot="test" />
+	return (
+		<Box sx={{ transform: 'translateZ(0px)', flexGrow: 1 }}>
+			<div ref={containerId} slot="test" />
+			<Box sx={{ '& > :not(style)': { m: 1 }, position: 'absolute', top: 8, right: 16, zIndex: 99 }}>
+				<Fab color="primary" aria-label="add" spot="testing">
+					<PlayArrow />
+				</Fab>
+				<Fab variant="extended" aria-label="edit">
+					Balance: 2300.99
+				</Fab>
+			</Box>
+		</Box>
+	)
 }
 
 export default Chart
