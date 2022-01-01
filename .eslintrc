@@ -52,6 +52,7 @@
 		"no-plusplus": "off",
 		"no-use-before-define": "off",
 		"arrow-body-style": "off",
+		"eqeqeq": "off",
 		"prettier/prettier": [
 			"warn",
 			{

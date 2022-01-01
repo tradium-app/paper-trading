@@ -1,15 +1,17 @@
+import { useDispatch, useSelector } from 'react-redux'
 import { useTheme } from '@mui/material/styles'
 import { Box, Button, FormControl, FormHelperText, InputLabel, OutlinedInput, Stack, Typography } from '@mui/material'
 import * as Yup from 'yup'
 import { Formik } from 'formik'
 import useScriptRef from 'hooks/useScriptRef'
 import AnimateButton from 'ui-component/extended/AnimateButton'
-import { useDispatch, useSelector } from 'react-redux'
+import { EXECUTE_TRANSACTION } from 'store/actions'
 
 const OrderForm = ({ ...others }) => {
 	const theme = useTheme()
 	const scriptedRef = useScriptRef()
 	const trading = useSelector((state) => state.trading)
+	const dispatch = useDispatch()
 
 	return (
 		<>
@@ -19,12 +21,19 @@ const OrderForm = ({ ...others }) => {
 					submit: null,
 				}}
 				validationSchema={Yup.object().shape({
-					email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
-					password: Yup.string().max(255).required('Password is required'),
+					quantity: Yup.number().required('Quantity is required').positive().integer(),
 				})}
 				onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
 					try {
 						if (scriptedRef.current) {
+							if (trading.balance > values.quantity * trading.price) {
+								dispatch({
+									type: EXECUTE_TRANSACTION,
+									transaction: { type: 'Buy', quantity: values.quantity, amt: values.quantity * trading.price },
+								})
+							} else {
+								setErrors({ submit: 'Not enough balance' })
+							}
 							setStatus({ success: true })
 							setSubmitting(false)
 						}
