@@ -66,7 +66,7 @@ const Chart = () => {
 	}, [data?.getNewGame?.price_history?.length])
 
 	useEffect(() => {
-		if (!loading && !error && priceData && currentIndex > 0) {
+		if (!loading && !error && priceData && currentIndex > 0 && currentIndex < priceData.length) {
 			dispatch({ type: SET_PRICE, price: priceData[currentIndex].close })
 
 			candleSeries.update(priceData[currentIndex])

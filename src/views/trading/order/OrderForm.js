@@ -26,7 +26,7 @@ const OrderForm = ({ ...others }) => {
 				onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
 					try {
 						if (scriptedRef.current) {
-							if (trading.balance > values.quantity * trading.price) {
+							if (trading.cash > values.quantity * trading.price) {
 								dispatch({
 									type: EXECUTE_TRANSACTION,
 									transaction: {
