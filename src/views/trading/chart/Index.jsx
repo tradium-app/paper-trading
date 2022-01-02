@@ -20,6 +20,7 @@ const Chart = () => {
 	const [showRSI] = useLocalStorage('showRSI', 1)
 	const dispatch = useDispatch()
 	const trading = useSelector((state) => state.trading)
+	const [currentIndex, setCurrentIndex] = useState(0)
 
 	const { loading, error, data, refetch } = useQuery(GET_NEW_GAME_QUERY, {
 		fetchPolicy: 'no-cache',
@@ -36,32 +37,43 @@ const Chart = () => {
 		setEmaSeries(containerId.current.addLineSeries(emaSeriesOptions))
 
 		containerId.current.timeScale().applyOptions({ rightOffset: 15 })
+
+		let stockUpdater = setInterval(() => {
+			setCurrentIndex((prevIndex) => prevIndex + 1)
+		}, 5000)
+
+		if (stockUpdater) return () => clearInterval(stockUpdater)
 	}, [])
 
-	let priceData, volumeData, emaData, predictionPoint, currentIndex
+	let priceData, volumeData, emaData, predictionPoint
 
 	if (!loading && !error && data.getNewGame) {
 		;({ priceData, volumeData, emaData } = computeChartData(data.getNewGame, showEma26, showRSI))
 		predictionPoint = priceData[data.getNewGame.price_history.length].time
 	}
 
-	if (!loading && !error && priceData) {
-		candleSeries.setData(priceData.slice(0, data.getNewGame.price_history.length))
-		volumeSeries.setData(volumeData.slice(0, data.getNewGame.price_history.length))
-		showEma26 && emaSeries.setData(emaData.filter((ed) => ed.time <= predictionPoint))
+	useEffect(() => {
+		if (!loading && !error && priceData) {
+			candleSeries.setData(priceData.slice(0, data.getNewGame.price_history.length))
+			volumeSeries.setData(volumeData.slice(0, data.getNewGame.price_history.length))
+			showEma26 && emaSeries.setData(emaData.filter((ed) => ed.time <= predictionPoint))
+		}
+	}, [loading])
 
-		currentIndex = data.getNewGame.price_history.length - 1
-	}
+	useEffect(() => {
+		const index = data?.getNewGame?.price_history?.length
+		currentIndex == 0 && index > 0 && setCurrentIndex(index)
+	}, [data?.getNewGame?.price_history?.length])
 
-	if (!loading && !error && priceData) {
-		setInterval(function () {
-			currentIndex++
+	useEffect(() => {
+		if (!loading && !error && priceData && currentIndex > 0) {
+			dispatch({ type: SET_PRICE, price: priceData[currentIndex].close })
+
 			candleSeries.update(priceData[currentIndex])
 			volumeSeries.update(volumeData[currentIndex])
 			showEma26 && emaSeries.update(emaData[currentIndex - emaPeriod])
-			dispatch({ type: SET_PRICE, price: priceData[currentIndex].close })
-		}, 5000)
-	}
+		}
+	}, [currentIndex])
 
 	return (
 		<Box sx={{ transform: 'translateZ(0px)', flexGrow: 1 }}>
