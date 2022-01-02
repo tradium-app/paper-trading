@@ -22,7 +22,7 @@ const Chart = () => {
 	const [currentIndex, setCurrentIndex] = useState(0)
 	const [isPlaying, setIsPlaying] = useState(true)
 
-	const { loading, error, data, refetch } = useQuery(GET_NEW_GAME_QUERY, {
+	const { loading, error, data } = useQuery(GET_NEW_GAME_QUERY, {
 		fetchPolicy: 'no-cache',
 		notifyOnNetworkStatusChange: true,
 	})
@@ -37,13 +37,18 @@ const Chart = () => {
 		setEmaSeries(containerId.current.addLineSeries(emaSeriesOptions))
 
 		containerId.current.timeScale().applyOptions({ rightOffset: 15 })
+	}, [])
 
-		let stockUpdater = setInterval(() => {
-			setCurrentIndex((prevIndex) => prevIndex + 1)
-		}, 5000)
+	useEffect(() => {
+		let stockUpdater
+		if (isPlaying) {
+			stockUpdater = setInterval(() => {
+				setCurrentIndex((prevIndex) => prevIndex + 1)
+			}, 5000)
+		}
 
 		if (stockUpdater) return () => clearInterval(stockUpdater)
-	}, [])
+	}, [isPlaying])
 
 	let priceData, volumeData, emaData, predictionPoint
 
