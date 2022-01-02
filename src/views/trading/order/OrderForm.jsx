@@ -22,7 +22,7 @@ const OrderForm = ({ ...others }) => {
 
 	const handleOrder = (values, setErrors) => {
 		if (orderType == OrderTypes.Buy && trading.cash < values.quantity * trading.price) {
-			setErrors({ submit: 'Not enough Balance.' })
+			setErrors({ submit: 'Not enough Cash balance.' })
 			return
 		}
 

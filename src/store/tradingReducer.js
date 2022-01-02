@@ -5,7 +5,7 @@ export const initialState = {
 	quantity: 0,
 	cash: 10000,
 	balance: 10000,
-	transaction: null,
+	transactions: [],
 }
 
 const tradingReducer = (state = initialState, action) => {
@@ -18,14 +18,16 @@ const tradingReducer = (state = initialState, action) => {
 			}
 		case actionTypes.EXECUTE_TRANSACTION:
 			const transaction = action.transaction
-			const amt = transaction.quantity * transaction.price
-			const newCash = transaction.type == 'Buy' ? state.cash - amt : state.cash + amt
+			transaction.amt = transaction.quantity * transaction.price
+			const newCash = transaction.type == 'Buy' ? state.cash - transaction.amt : state.cash + transaction.amt
 			const newQuantity = transaction.type == 'Buy' ? state.quantity + transaction.quantity : state.quantity - transaction.quantity
 			const newBalance = newCash + newQuantity * transaction.price
+			transaction.cash = newCash
+			transaction.order = state.transactions.length + 1
 
 			return {
 				...state,
-				transaction,
+				transactions: state.transactions.concat(transaction),
 				cash: newCash,
 				quantity: newQuantity,
 				balance: newBalance,
