@@ -29,7 +29,11 @@ const OrderForm = ({ ...others }) => {
 							if (trading.balance > values.quantity * trading.price) {
 								dispatch({
 									type: EXECUTE_TRANSACTION,
-									transaction: { type: 'Buy', quantity: values.quantity, amt: values.quantity * trading.price },
+									transaction: {
+										type: 'Buy',
+										quantity: values.quantity,
+										price: trading.price,
+									},
 								})
 							} else {
 								setErrors({ submit: 'Not enough balance' })
