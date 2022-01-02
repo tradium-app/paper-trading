@@ -7,8 +7,7 @@ import computeChartData from './computeChartData'
 import { useLocalStorage } from 'beautiful-react-hooks'
 import { emaPeriod, defaultChartOptions, afterPredictionChartOptions, candleSeriesOptions, volumeSeriesOptions, emaSeriesOptions } from './configs'
 import { Box, Fab } from '@mui/material'
-import PlayArrow from '@mui/icons-material/PlayArrow'
-import Pause from '@mui/icons-material/Pause'
+import PlayPauseBtn from './PlayPauseBtn'
 import { SET_PRICE } from 'store/actions'
 
 const Chart = () => {
@@ -21,6 +20,7 @@ const Chart = () => {
 	const dispatch = useDispatch()
 	const trading = useSelector((state) => state.trading)
 	const [currentIndex, setCurrentIndex] = useState(0)
+	const [isPlaying, setIsPlaying] = useState(true)
 
 	const { loading, error, data, refetch } = useQuery(GET_NEW_GAME_QUERY, {
 		fetchPolicy: 'no-cache',
@@ -80,7 +80,7 @@ const Chart = () => {
 			<div ref={containerId} slot="test" />
 			<Box sx={{ '& > :not(style)': { m: 1 }, position: 'absolute', top: 8, right: 16, zIndex: 99 }}>
 				<Fab color="primary" aria-label="add" spot="testing">
-					<Pause />
+					<PlayPauseBtn isPlaying={isPlaying} setIsPlaying={setIsPlaying} />
 				</Fab>
 				<Fab variant="extended" aria-label="edit">
 					{'Balance: '}
