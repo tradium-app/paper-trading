@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useTheme } from '@mui/material/styles'
 import { Box, Button, FormControl, FormHelperText, InputLabel, OutlinedInput, Stack, Typography } from '@mui/material'
@@ -7,11 +8,34 @@ import useScriptRef from 'hooks/useScriptRef'
 import AnimateButton from 'ui-component/extended/AnimateButton'
 import { EXECUTE_TRANSACTION } from 'store/actions'
 
+const OrderTypes = {
+	Buy: 'Buy',
+	Sell: 'Sell',
+}
+
 const OrderForm = ({ ...others }) => {
 	const theme = useTheme()
 	const scriptedRef = useScriptRef()
 	const trading = useSelector((state) => state.trading)
 	const dispatch = useDispatch()
+	const [orderType, setOrderType] = useState(OrderTypes.Buy)
+
+	const handleOrder = (values, setErrors) => {
+		if (orderType == OrderTypes.Buy && trading.cash < values.quantity * trading.price) {
+			setErrors({ submit: 'Not enough Balance.' })
+			return
+		}
+
+		if (orderType == OrderTypes.Sell && trading.quantity < values.quantity) {
+			setErrors({ submit: 'Not enough Stocks.' })
+			return
+		}
+
+		dispatch({
+			type: EXECUTE_TRANSACTION,
+			transaction: { type: orderType, quantity: values.quantity, price: trading.price },
+		})
+	}
 
 	return (
 		<>
@@ -26,18 +50,7 @@ const OrderForm = ({ ...others }) => {
 				onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
 					try {
 						if (scriptedRef.current) {
-							if (trading.cash > values.quantity * trading.price) {
-								dispatch({
-									type: EXECUTE_TRANSACTION,
-									transaction: {
-										type: 'Buy',
-										quantity: values.quantity,
-										price: trading.price,
-									},
-								})
-							} else {
-								setErrors({ submit: 'Not enough balance' })
-							}
+							handleOrder(values, setErrors)
 							setStatus({ success: true })
 							setSubmitting(false)
 						}
@@ -103,6 +116,7 @@ const OrderForm = ({ ...others }) => {
 									type="submit"
 									variant="contained"
 									color="success"
+									onClick={() => setOrderType(OrderTypes.Buy)}
 								>
 									Buy
 								</Button>
@@ -118,6 +132,7 @@ const OrderForm = ({ ...others }) => {
 									type="submit"
 									variant="contained"
 									color="error"
+									onClick={() => setOrderType(OrderTypes.Sell)}
 								>
 									Sell
 								</Button>

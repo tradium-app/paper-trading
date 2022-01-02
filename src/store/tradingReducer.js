@@ -9,8 +9,6 @@ export const initialState = {
 }
 
 const tradingReducer = (state = initialState, action) => {
-	console.log('printing action', action)
-
 	switch (action.type) {
 		case actionTypes.SET_PRICE:
 			return {
@@ -22,7 +20,7 @@ const tradingReducer = (state = initialState, action) => {
 			const transaction = action.transaction
 			const amt = transaction.quantity * transaction.price
 			const newCash = transaction.type == 'Buy' ? state.cash - amt : state.cash + amt
-			const newQuantity = transaction.type == 'Buy' ? state.quantity + transaction.quantity : state.balance - transaction.quantity
+			const newQuantity = transaction.type == 'Buy' ? state.quantity + transaction.quantity : state.quantity - transaction.quantity
 			const newBalance = newCash + newQuantity * transaction.price
 
 			return {
