@@ -33,7 +33,7 @@ const OrderForm = ({ ...others }) => {
 
 		dispatch({
 			type: EXECUTE_TRANSACTION,
-			transaction: { type: orderType, quantity: values.quantity, price: trading.price, time: trading.time },
+			transaction: { type: orderType, symbol: trading.symbol, quantity: values.quantity, price: trading.price, time: trading.time },
 		})
 	}
 

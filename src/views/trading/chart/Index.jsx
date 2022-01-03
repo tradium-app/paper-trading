@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useQuery } from '@apollo/client'
-import { createChart } from 'lightweight-charts'
+import { createChart, LineStyle } from 'lightweight-charts'
 import GET_NEW_GAME_QUERY from './Chart_Query'
 import computeChartData from './computeChartData'
 import { useLocalStorage } from 'beautiful-react-hooks'
@@ -39,13 +39,21 @@ const Chart = () => {
 			width: containerId.current.offsetWidth,
 			height: 700,
 		})
-		containerId.current.subscribeClick((params) => {
-			console.log('printing click params', params)
-		})
 
-		setCandleSeries(containerId.current.addCandlestickSeries(candleSeriesOptions))
+		let candleSeries = containerId.current.addCandlestickSeries(candleSeriesOptions)
+		setCandleSeries(candleSeries)
 		setVolumeSeries(containerId.current.addHistogramSeries(volumeSeriesOptions))
 		setEmaSeries(containerId.current.addLineSeries(emaSeriesOptions))
+
+		containerId.current.subscribeClick((param) => {
+			const clickedPrice = candleSeries.coordinateToPrice(param.point.y)
+			var minPriceLine = {
+				price: clickedPrice,
+				color: '#be1238',
+				lineStyle: LineStyle.Solid,
+			}
+			candleSeries.createPriceLine(minPriceLine)
+		})
 
 		containerId.current.applyOptions(defaultChartOptions)
 		containerId.current.timeScale().applyOptions({ rightOffset: 15 })
@@ -85,7 +93,7 @@ const Chart = () => {
 
 	useEffect(() => {
 		if (!loading && !error && priceData && currentIndex > 0 && currentIndex < priceData.length) {
-			dispatch({ type: SET_PRICE, price: priceData[currentIndex].close, time: priceData[currentIndex].time })
+			dispatch({ type: SET_PRICE, symbol: data.getNewGame.symbol, price: priceData[currentIndex].close, time: priceData[currentIndex].time })
 
 			candleSeries.update(priceData[currentIndex])
 			volumeSeries.update(volumeData[currentIndex])
@@ -100,14 +108,16 @@ const Chart = () => {
 	useEffect(() => {
 		if (priceData) {
 			let markers = []
-			trading?.transactions.forEach((transaction) => {
-				markers.push({
-					...markerOptions,
-					color: transaction.type == 'Buy' ? 'blue' : 'black',
-					text: transaction.type,
-					time: transaction.time,
+			trading?.transactions
+				.filter((transaction) => transaction.symbol == data.getNewGame.symbol)
+				.forEach((transaction) => {
+					markers.push({
+						...markerOptions,
+						color: transaction.type == 'Buy' ? 'blue' : 'black',
+						text: transaction.type,
+						time: transaction.time,
+					})
 				})
-			})
 			if (markers.length > 0) candleSeries.setMarkers(markers)
 		}
 	}, [trading?.transactions])

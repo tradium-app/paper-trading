@@ -8,12 +8,6 @@ export const toastOptions = {
 }
 
 export const defaultChartOptions = {
-	handleScale: {
-		axisPressedMouseMove: {
-			time: true,
-			price: false,
-		},
-	},
 	crosshair: {
 		mode: 0,
 	},
