@@ -6,6 +6,7 @@
         "start": "react-scripts start",
         "build": "react-scripts build",
         "test": "react-scripts test",
+        "analyze": "source-map-explorer 'build/static/js/*.js'",
         "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
     },
     "dependencies": {
@@ -42,14 +43,12 @@
         "eslint": "^8.5.0",
         "eslint-config-prettier": "^8.3.0",
         "eslint-config-react-app": "7.0.0",
-        "eslint-import-resolver-typescript": "2.5.0",
-        "eslint-plugin-flowtype": "^8.0.3",
-        "eslint-plugin-import": "^2.25.3",
         "eslint-plugin-jsx-a11y": "6.5.1",
         "eslint-plugin-prettier": "^4.0.0",
         "eslint-plugin-react": "^7.28.0",
         "eslint-plugin-react-hooks": "4.3.0",
         "prettier": "^2.5.1",
+        "source-map-explorer": "^2.5.2",
         "sass": "^1.45.2"
     },
     "browserslist": {
