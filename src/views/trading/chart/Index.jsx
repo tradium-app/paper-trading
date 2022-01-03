@@ -8,7 +8,7 @@ import { useLocalStorage } from 'beautiful-react-hooks'
 import { emaPeriod, defaultChartOptions, afterPredictionChartOptions, candleSeriesOptions, volumeSeriesOptions, emaSeriesOptions } from './configs'
 import { Box, Fab } from '@mui/material'
 import PlayPauseBtn from './PlayPauseBtn'
-import { SET_PRICE } from 'store/actions'
+import { SET_PRICE, CLOSE_ALL_ORDERS } from 'store/actions'
 
 export const PlayStatus = {
 	playing: 'playing',
@@ -54,6 +54,7 @@ const Chart = () => {
 			}, 5000)
 		} else if (playStatus == PlayStatus.resetting) {
 			refetch()
+			dispatch({ type: CLOSE_ALL_ORDERS })
 			setPlayStatus(PlayStatus.playing)
 		}
 
