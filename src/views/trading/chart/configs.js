@@ -14,17 +14,8 @@ export const defaultChartOptions = {
 			price: false,
 		},
 	},
-	rightPriceScale: {
-		visible: false,
-	},
 	crosshair: {
 		mode: 0,
-	},
-}
-
-export const afterPredictionChartOptions = {
-	rightPriceScale: {
-		visible: true,
 	},
 }
 
@@ -72,6 +63,5 @@ export const markerOptions = {
 	position: 'aboveBar',
 	color: '#5d58e0',
 	shape: 'arrowDown',
-	text: 'Buy/Short?',
-	size: 2,
+	size: 1,
 }

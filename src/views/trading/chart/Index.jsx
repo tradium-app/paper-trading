@@ -5,7 +5,7 @@ import { createChart } from 'lightweight-charts'
 import GET_NEW_GAME_QUERY from './Chart_Query'
 import computeChartData from './computeChartData'
 import { useLocalStorage } from 'beautiful-react-hooks'
-import { emaPeriod, defaultChartOptions, afterPredictionChartOptions, candleSeriesOptions, volumeSeriesOptions, emaSeriesOptions } from './configs'
+import { emaPeriod, defaultChartOptions, candleSeriesOptions, volumeSeriesOptions, emaSeriesOptions, markerOptions } from './configs'
 import { Box, Fab } from '@mui/material'
 import PlayPauseBtn from './PlayPauseBtn'
 import { SET_PRICE, CLOSE_ALL_ORDERS } from 'store/actions'
@@ -39,10 +39,15 @@ const Chart = () => {
 			width: containerId.current.offsetWidth,
 			height: 700,
 		})
+		containerId.current.subscribeClick((params) => {
+			console.log('printing click params', params)
+		})
+
 		setCandleSeries(containerId.current.addCandlestickSeries(candleSeriesOptions))
 		setVolumeSeries(containerId.current.addHistogramSeries(volumeSeriesOptions))
 		setEmaSeries(containerId.current.addLineSeries(emaSeriesOptions))
 
+		containerId.current.applyOptions(defaultChartOptions)
 		containerId.current.timeScale().applyOptions({ rightOffset: 15 })
 	}, [])
 
@@ -80,7 +85,7 @@ const Chart = () => {
 
 	useEffect(() => {
 		if (!loading && !error && priceData && currentIndex > 0 && currentIndex < priceData.length) {
-			dispatch({ type: SET_PRICE, price: priceData[currentIndex].close })
+			dispatch({ type: SET_PRICE, price: priceData[currentIndex].close, time: priceData[currentIndex].time })
 
 			candleSeries.update(priceData[currentIndex])
 			volumeSeries.update(volumeData[currentIndex])
@@ -91,6 +96,21 @@ const Chart = () => {
 			setPlayStatus(PlayStatus.done)
 		}
 	}, [currentIndex])
+
+	useEffect(() => {
+		if (priceData) {
+			let markers = []
+			trading?.transactions.forEach((transaction) => {
+				markers.push({
+					...markerOptions,
+					color: transaction.type == 'Buy' ? 'blue' : 'black',
+					text: transaction.type,
+					time: transaction.time,
+				})
+			})
+			if (markers.length > 0) candleSeries.setMarkers(markers)
+		}
+	}, [trading?.transactions])
 
 	return (
 		<Box sx={{ transform: 'translateZ(0px)', flexGrow: 1 }}>

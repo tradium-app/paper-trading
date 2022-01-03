@@ -4,7 +4,6 @@ import Paper from '@mui/material/Paper'
 
 const OrderHistory = () => {
 	const trading = useSelector((state) => state.trading)
-	console.log('printing trading?.transactions', trading?.transactions)
 
 	return (
 		<>

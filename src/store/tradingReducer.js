@@ -2,6 +2,7 @@ import * as actionTypes from './actions'
 
 export const initialState = {
 	price: 0,
+	time: null,
 	quantity: 0,
 	cash: 10000,
 	balance: 10000,
@@ -13,6 +14,7 @@ const tradingReducer = (state = initialState, action) => {
 		case actionTypes.SET_PRICE: {
 			return {
 				...state,
+				time: action.time,
 				balance: state.cash + state.quantity * action.price,
 				price: action.price,
 			}
