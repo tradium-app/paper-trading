@@ -57,5 +57,5 @@ export const markerOptions = {
 	position: 'aboveBar',
 	color: '#5d58e0',
 	shape: 'arrowDown',
-	size: 1,
+	size: 2,
 }

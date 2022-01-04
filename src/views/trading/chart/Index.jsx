@@ -106,10 +106,17 @@ const Chart = () => {
 	}, [currentIndex])
 
 	useEffect(() => {
-		if (priceData) {
+		candleSeries?.setMarkers([])
+		if (priceData && currentIndex > 0) {
 			let markers = []
+
 			trading?.transactions
 				.filter((transaction) => transaction.symbol == data.getNewGame.symbol)
+				.filter(
+					(transaction) =>
+						new Date(transaction.time) >= new Date(priceData[0].time) &&
+						new Date(transaction.time) <= new Date(priceData[Math.min(currentIndex, priceData.length - 1)].time),
+				)
 				.forEach((transaction) => {
 					markers.push({
 						...markerOptions,
@@ -120,7 +127,7 @@ const Chart = () => {
 				})
 			if (markers.length > 0) candleSeries.setMarkers(markers)
 		}
-	}, [trading?.transactions])
+	}, [trading?.transactions, loading])
 
 	return (
 		<Box sx={{ transform: 'translateZ(0px)', flexGrow: 1 }}>
