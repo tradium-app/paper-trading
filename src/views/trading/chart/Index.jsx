@@ -8,6 +8,7 @@ import { useLocalStorage } from 'beautiful-react-hooks'
 import { emaPeriod, defaultChartOptions, candleSeriesOptions, volumeSeriesOptions, emaSeriesOptions, markerOptions } from './configs'
 import { Box, Fab } from '@mui/material'
 import PlayPauseBtn from './PlayPauseBtn'
+import Forward from '@mui/icons-material/Forward'
 import { SET_PRICE, CLOSE_ALL_ORDERS } from 'store/actions'
 
 export const PlayStatus = {
@@ -134,6 +135,9 @@ const Chart = () => {
 			<div ref={containerId} slot="test" />
 			<Box sx={{ '& > :not(style)': { m: 1 }, position: 'absolute', top: 8, right: 16, zIndex: 99 }}>
 				<PlayPauseBtn playStatus={playStatus} setPlayStatus={setPlayStatus} />
+				<Fab color="primary" onClick={() => setCurrentIndex((prevIndex) => prevIndex + 1)}>
+					<Forward />
+				</Fab>
 				<Fab variant="extended" aria-label="edit">
 					{'Balance: '}
 					{trading.balance.toLocaleString(undefined, {
