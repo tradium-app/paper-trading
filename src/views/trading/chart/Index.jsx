@@ -9,6 +9,7 @@ import { emaPeriod, defaultChartOptions, candleSeriesOptions, volumeSeriesOption
 import { Box, Fab } from '@mui/material'
 import PlayPauseBtn from './PlayPauseBtn'
 import Forward from '@mui/icons-material/Forward'
+import PlaylistRemoveOutlinedIcon from '@mui/icons-material/PlaylistRemoveOutlined'
 import { SET_PRICE, CLOSE_ALL_ORDERS } from 'store/actions'
 
 export const PlayStatus = {
@@ -29,6 +30,7 @@ const Chart = () => {
 	const trading = useSelector((state) => state.trading)
 	const [currentIndex, setCurrentIndex] = useState(0)
 	const [playStatus, setPlayStatus] = useState(PlayStatus.playing)
+	const [pricelines, setPricelines] = useState([])
 
 	const { loading, error, data, refetch } = useQuery(GET_NEW_GAME_QUERY, {
 		fetchPolicy: 'no-cache',
@@ -48,12 +50,13 @@ const Chart = () => {
 
 		containerId.current.subscribeClick((param) => {
 			const clickedPrice = candleSeries.coordinateToPrice(param.point.y)
-			var minPriceLine = {
+			let priceLine = {
 				price: clickedPrice,
 				color: '#be1238',
 				lineStyle: LineStyle.Solid,
 			}
-			candleSeries.createPriceLine(minPriceLine)
+			priceLine = candleSeries.createPriceLine(priceLine)
+			setPricelines((ps) => ps.concat(priceLine))
 		})
 
 		containerId.current.applyOptions(defaultChartOptions)
@@ -130,6 +133,12 @@ const Chart = () => {
 		}
 	}, [trading?.transactions, loading])
 
+	const removePriceLines = () => {
+		pricelines.forEach((ps) => {
+			candleSeries.removePriceLine(ps)
+		})
+	}
+
 	return (
 		<Box sx={{ transform: 'translateZ(0px)', flexGrow: 1 }}>
 			<div ref={containerId} slot="test" />
@@ -137,6 +146,9 @@ const Chart = () => {
 				<PlayPauseBtn playStatus={playStatus} setPlayStatus={setPlayStatus} />
 				<Fab color="primary" onClick={() => setCurrentIndex((prevIndex) => prevIndex + 1)}>
 					<Forward />
+				</Fab>
+				<Fab color="primary" onClick={removePriceLines}>
+					<PlaylistRemoveOutlinedIcon />
 				</Fab>
 				<Fab variant="extended" aria-label="edit">
 					{'Balance: '}
