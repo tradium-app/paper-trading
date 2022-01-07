@@ -144,10 +144,10 @@ const Chart = () => {
 			<div ref={containerId} slot="test" />
 			<Box sx={{ '& > :not(style)': { m: 1 }, position: 'absolute', top: 8, right: 16, zIndex: 99 }}>
 				<PlayPauseBtn playStatus={playStatus} setPlayStatus={setPlayStatus} />
-				<Fab color="primary" onClick={() => setCurrentIndex((prevIndex) => prevIndex + 1)}>
+				<Fab title="Move one step forward" color="primary" onClick={() => setCurrentIndex((prevIndex) => prevIndex + 1)}>
 					<Forward />
 				</Fab>
-				<Fab color="primary" onClick={removePriceLines}>
+				<Fab title="Remove All Pricelines" color="primary" onClick={removePriceLines}>
 					<PlaylistRemoveOutlinedIcon />
 				</Fab>
 				<Fab variant="extended" aria-label="edit">
