@@ -10,6 +10,7 @@ import { Box, Fab } from '@mui/material'
 import PlayPauseBtn from './PlayPauseBtn'
 import Forward from '@mui/icons-material/Forward'
 import PlaylistRemoveOutlinedIcon from '@mui/icons-material/PlaylistRemoveOutlined'
+import Tooltip from '@mui/material/Tooltip'
 import { SET_PRICE, CLOSE_ALL_ORDERS } from 'store/actions'
 
 export const PlayStatus = {
@@ -144,12 +145,16 @@ const Chart = () => {
 			<div ref={containerId} slot="test" />
 			<Box sx={{ '& > :not(style)': { m: 1 }, position: 'absolute', top: 8, right: 16, zIndex: 99 }}>
 				<PlayPauseBtn playStatus={playStatus} setPlayStatus={setPlayStatus} />
-				<Fab title="Move one step forward" color="primary" onClick={() => setCurrentIndex((prevIndex) => prevIndex + 1)}>
-					<Forward />
-				</Fab>
-				<Fab title="Remove All Pricelines" color="primary" onClick={removePriceLines}>
-					<PlaylistRemoveOutlinedIcon />
-				</Fab>
+				<Tooltip title="Move one step forward">
+					<Fab color="primary" onClick={() => setCurrentIndex((prevIndex) => prevIndex + 1)}>
+						<Forward />
+					</Fab>
+				</Tooltip>
+				<Tooltip title="Remove All Pricelines">
+					<Fab color="primary" onClick={removePriceLines}>
+						<PlaylistRemoveOutlinedIcon />
+					</Fab>
+				</Tooltip>
 				<Fab variant="extended" aria-label="edit">
 					{'Balance: '}
 					{trading.balance.toLocaleString(undefined, {
