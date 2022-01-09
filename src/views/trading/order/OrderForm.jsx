@@ -4,9 +4,7 @@ import { useTheme } from '@mui/material/styles'
 import {
 	Box,
 	Button,
-	Checkbox,
 	FormControl,
-	FormControlLabel,
 	FormHelperText,
 	Grid,
 	InputLabel,
@@ -95,8 +93,6 @@ const OrderForm = ({ ...others }) => {
 						initialValues={{
 							quantity: 10,
 							submit: null,
-							isTakeProfitEnabled: false,
-							isStopLossEnabled: false,
 						}}
 						validationSchema={Yup.object().shape({
 							quantity: Yup.number().required('Quantity is required').positive().integer(),
@@ -170,62 +166,6 @@ const OrderForm = ({ ...others }) => {
 										autoComplete="off"
 									/>
 									{touched.price && errors.price && <FormHelperText error>{errors.price}</FormHelperText>}
-								</FormControl>
-
-								<FormControl
-									error={Boolean(touched.takeProfitPrice && errors.takeProfitPrice)}
-									sx={{ ...theme.typography.customInput }}
-									fullWidth
-								>
-									<FormControlLabel
-										name="isTakeProfitEnabled"
-										label="Take Profit Price"
-										control={<Checkbox />}
-										onChange={handleChange}
-									/>
-									{values.isTakeProfitEnabled && (
-										<OutlinedInput
-											name="takeProfitPrice"
-											type="number"
-											value={
-												(orderCategory == OrderCategories.Market && trading.price) ||
-												parseFloat(values.price || trading.price)
-											}
-											onBlur={handleBlur}
-											onChange={handleChange}
-											autoComplete="off"
-										/>
-									)}
-									{touched.takeProfitPrice && errors.takeProfitPrice && (
-										<FormHelperText error>{errors.takeProfitPrice}</FormHelperText>
-									)}
-								</FormControl>
-
-								<FormControl
-									error={Boolean(touched.stopLossPrice && errors.stopLossPrice)}
-									sx={{ ...theme.typography.customInput }}
-									fullWidth
-								>
-									<FormControlLabel
-										name="isStopLossEnabled"
-										label="Stop Loss Price"
-										control={<Checkbox />}
-										onChange={handleChange}
-									/>
-									{values.isStopLossEnabled && (
-										<OutlinedInput
-											name="stopLossPrice"
-											type="number"
-											value={
-												(orderCategory == OrderCategories.Market && trading.price) ||
-												parseFloat(values.stopLossPrice || trading.price)
-											}
-											onBlur={handleBlur}
-											onChange={handleChange}
-											autoComplete="off"
-										/>
-									)}
-									{touched.stopLossPrice && errors.stopLossPrice && <FormHelperText error>{errors.stopLossPrice}</FormHelperText>}
 								</FormControl>
 
 								<Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1} sx={{ mt: 2 }}>

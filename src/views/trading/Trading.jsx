@@ -18,9 +18,7 @@ const Login = () => {
 					</Grid>
 					<Grid item lg={3} mb={3} xs={12} sx={{ paddingLeft: 2 }}>
 						<OrderForm />
-						<MainCard sx={{ marginTop: 2 }}>
-							<OrderHistory />
-						</MainCard>
+						<OrderHistory />
 					</Grid>
 				</Grid>
 			</Grid>
