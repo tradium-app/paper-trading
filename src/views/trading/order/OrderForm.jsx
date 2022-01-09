@@ -7,7 +7,6 @@ import {
 	Checkbox,
 	FormControl,
 	FormControlLabel,
-	FormGroup,
 	FormHelperText,
 	Grid,
 	InputLabel,
@@ -21,17 +20,22 @@ import * as Yup from 'yup'
 import { Formik } from 'formik'
 import useScriptRef from 'hooks/useScriptRef'
 import AnimateButton from 'ui-component/extended/AnimateButton'
-import { EXECUTE_TRANSACTION } from 'store/actions'
+import { EXECUTE_TRANSACTIONS } from 'store/actions'
 import FormWrapper from './FormWrapper'
 
-const OrderTypes = {
+export const OrderTypes = {
 	Buy: 'Buy',
 	Sell: 'Sell',
 }
 
-const OrderCategories = {
+export const OrderCategories = {
 	Market: 'Market',
 	Limit: 'Limit',
+}
+
+export const OrderStatus = {
+	Queued: 'Queued',
+	Executed: 'Executed',
 }
 
 const OrderForm = ({ ...others }) => {
@@ -41,23 +45,6 @@ const OrderForm = ({ ...others }) => {
 	const dispatch = useDispatch()
 	const [orderType, setOrderType] = useState(OrderTypes.Buy)
 	const [orderCategory, setOrderCategory] = useState(OrderCategories.Market)
-
-	const handleOrder = (values, setErrors) => {
-		if (orderType == OrderTypes.Buy && trading.cash < values.quantity * trading.price) {
-			setErrors({ submit: 'Not enough Cash balance.' })
-			return
-		}
-
-		if (orderType == OrderTypes.Sell && trading.quantity < values.quantity) {
-			setErrors({ submit: 'Not enough Stocks.' })
-			return
-		}
-
-		dispatch({
-			type: EXECUTE_TRANSACTION,
-			transaction: { type: orderType, symbol: trading.symbol, quantity: values.quantity, price: trading.price, time: trading.time },
-		})
-	}
 
 	const handleOrderTypeClick = (_, orderType) => {
 		if (orderType != null) {
@@ -71,6 +58,35 @@ const OrderForm = ({ ...others }) => {
 		}
 	}
 
+	const handleOrder = (values, setErrors) => {
+		if (orderType == OrderTypes.Buy && trading.cash < values.quantity * trading.price) {
+			setErrors({ submit: 'Not enough Cash balance.' })
+			return
+		}
+
+		if (orderType == OrderTypes.Sell && trading.quantity < values.quantity) {
+			setErrors({ submit: 'Not enough Stocks.' })
+			return
+		}
+
+		dispatch({
+			type: EXECUTE_TRANSACTIONS,
+			transactions: [
+				{
+					id: Date.now(),
+					type: orderType,
+					category: orderCategory,
+					symbol: trading.symbol,
+					quantity: values.quantity,
+					price: trading.price,
+					amt: values.quantity * trading.price,
+					time: trading.time,
+					status: OrderStatus.Queued,
+				},
+			],
+		})
+	}
+
 	return (
 		<FormWrapper>
 			<Grid container spacing={2} justifyContent="center">
@@ -79,6 +95,8 @@ const OrderForm = ({ ...others }) => {
 						initialValues={{
 							quantity: 10,
 							submit: null,
+							isTakeProfitEnabled: false,
+							isStopLossEnabled: false,
 						}}
 						validationSchema={Yup.object().shape({
 							quantity: Yup.number().required('Quantity is required').positive().integer(),
@@ -156,20 +174,28 @@ const OrderForm = ({ ...others }) => {
 
 								<FormControl
 									error={Boolean(touched.takeProfitPrice && errors.takeProfitPrice)}
-									sx={{ ...theme.typography.customInput, mt: 1 }}
+									sx={{ ...theme.typography.customInput }}
 									fullWidth
 								>
-									<FormControlLabel control={<Checkbox onChange={handleChange} />} label="Take Profit Price" />
-									<OutlinedInput
-										name="pprice"
-										type="number"
-										value={
-											(orderCategory == OrderCategories.Market && trading.price) || parseFloat(values.price || trading.price)
-										}
-										onBlur={handleBlur}
+									<FormControlLabel
+										name="isTakeProfitEnabled"
+										label="Take Profit Price"
+										control={<Checkbox />}
 										onChange={handleChange}
-										autoComplete="off"
 									/>
+									{values.isTakeProfitEnabled && (
+										<OutlinedInput
+											name="takeProfitPrice"
+											type="number"
+											value={
+												(orderCategory == OrderCategories.Market && trading.price) ||
+												parseFloat(values.price || trading.price)
+											}
+											onBlur={handleBlur}
+											onChange={handleChange}
+											autoComplete="off"
+										/>
+									)}
 									{touched.takeProfitPrice && errors.takeProfitPrice && (
 										<FormHelperText error>{errors.takeProfitPrice}</FormHelperText>
 									)}
@@ -177,21 +203,28 @@ const OrderForm = ({ ...others }) => {
 
 								<FormControl
 									error={Boolean(touched.stopLossPrice && errors.stopLossPrice)}
-									sx={{ ...theme.typography.customInput, mt: 1 }}
+									sx={{ ...theme.typography.customInput }}
 									fullWidth
 								>
-									<FormControlLabel control={<Checkbox onChange={handleChange} />} label="Stop Loss Price" />
-									<OutlinedInput
-										name="pprice"
-										type="number"
-										value={
-											(orderCategory == OrderCategories.Market && trading.price) ||
-											parseFloat(values.stopLossPrice || trading.price)
-										}
-										onBlur={handleBlur}
+									<FormControlLabel
+										name="isStopLossEnabled"
+										label="Stop Loss Price"
+										control={<Checkbox />}
 										onChange={handleChange}
-										autoComplete="off"
 									/>
+									{values.isStopLossEnabled && (
+										<OutlinedInput
+											name="stopLossPrice"
+											type="number"
+											value={
+												(orderCategory == OrderCategories.Market && trading.price) ||
+												parseFloat(values.stopLossPrice || trading.price)
+											}
+											onBlur={handleBlur}
+											onChange={handleChange}
+											autoComplete="off"
+										/>
+									)}
 									{touched.stopLossPrice && errors.stopLossPrice && <FormHelperText error>{errors.stopLossPrice}</FormHelperText>}
 								</FormControl>
 

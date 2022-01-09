@@ -24,7 +24,7 @@ const OrderHistory = () => {
 					</TableHead>
 					<TableBody>
 						{trading?.transactions
-							.sort((a, b) => b.order - a.order)
+							.sort((a, b) => b.id - a.id)
 							.map((transaction, index) => (
 								<TableRow key={index} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
 									<TableCell component="th" scope="row">
@@ -37,7 +37,7 @@ const OrderHistory = () => {
 										})}
 									</TableCell>
 									<TableCell align="right">
-										{transaction.cash.toLocaleString(undefined, {
+										{transaction.cash?.toLocaleString(undefined, {
 											maximumFractionDigits: 2,
 										})}
 									</TableCell>
