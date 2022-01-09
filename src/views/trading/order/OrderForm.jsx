@@ -4,7 +4,10 @@ import { useTheme } from '@mui/material/styles'
 import {
 	Box,
 	Button,
+	Checkbox,
 	FormControl,
+	FormControlLabel,
+	FormGroup,
 	FormHelperText,
 	Grid,
 	InputLabel,
@@ -107,6 +110,7 @@ const OrderForm = ({ ...others }) => {
 										{OrderTypes.Sell}
 									</ToggleButton>
 								</ToggleButtonGroup>
+
 								<ToggleButtonGroup fullWidth value={orderCategory} exclusive onChange={handleOrderCategoryClick} sx={{ mt: 2 }}>
 									<ToggleButton value={OrderCategories.Market} color="success">
 										{OrderCategories.Market}
@@ -121,9 +125,9 @@ const OrderForm = ({ ...others }) => {
 									error={Boolean(touched.quantity && errors.quantity)}
 									sx={{ ...theme.typography.customInput, mt: 2 }}
 								>
-									<InputLabel htmlFor="outlined-adornment-quantity">Quantity</InputLabel>
+									<InputLabel shrink>Quantity</InputLabel>
 									<OutlinedInput
-										id="outlined-adornment-quantity"
+										id="lbl-quantity"
 										type="number"
 										value={values.quantity}
 										name="quantity"
@@ -133,19 +137,65 @@ const OrderForm = ({ ...others }) => {
 										inputProps={{ step: '1' }}
 										autoComplete="off"
 									/>
-									{touched.quantity && errors.quantity && (
-										<FormHelperText error id="standard-weight-helper-text-quantity">
-											{errors.quantity}
-										</FormHelperText>
+									{touched.quantity && errors.quantity && <FormHelperText error>{errors.quantity}</FormHelperText>}
+								</FormControl>
+
+								<FormControl fullWidth error={Boolean(touched.price && errors.price)} sx={{ ...theme.typography.customInput, mt: 1 }}>
+									<InputLabel shrink>Price</InputLabel>
+									<OutlinedInput
+										name="price"
+										type="number"
+										value={(orderCategory == OrderCategories.Market && trading.price) || values.price}
+										onBlur={handleBlur}
+										onChange={handleChange}
+										disabled={orderCategory == OrderCategories.Market}
+										autoComplete="off"
+									/>
+									{touched.price && errors.price && <FormHelperText error>{errors.price}</FormHelperText>}
+								</FormControl>
+
+								<FormControl
+									error={Boolean(touched.takeProfitPrice && errors.takeProfitPrice)}
+									sx={{ ...theme.typography.customInput, mt: 1 }}
+									fullWidth
+								>
+									<FormControlLabel control={<Checkbox onChange={handleChange} />} label="Take Profit Price" />
+									<OutlinedInput
+										name="pprice"
+										type="number"
+										value={
+											(orderCategory == OrderCategories.Market && trading.price) || parseFloat(values.price || trading.price)
+										}
+										onBlur={handleBlur}
+										onChange={handleChange}
+										autoComplete="off"
+									/>
+									{touched.takeProfitPrice && errors.takeProfitPrice && (
+										<FormHelperText error>{errors.takeProfitPrice}</FormHelperText>
 									)}
 								</FormControl>
-								<Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
-									<Typography>
-										{'Price: '}
-										{trading.price.toLocaleString(undefined, {
-											maximumFractionDigits: 2,
-										})}
-									</Typography>
+
+								<FormControl
+									error={Boolean(touched.stopLossPrice && errors.stopLossPrice)}
+									sx={{ ...theme.typography.customInput, mt: 1 }}
+									fullWidth
+								>
+									<FormControlLabel control={<Checkbox onChange={handleChange} />} label="Stop Loss Price" />
+									<OutlinedInput
+										name="pprice"
+										type="number"
+										value={
+											(orderCategory == OrderCategories.Market && trading.price) ||
+											parseFloat(values.stopLossPrice || trading.price)
+										}
+										onBlur={handleBlur}
+										onChange={handleChange}
+										autoComplete="off"
+									/>
+									{touched.stopLossPrice && errors.stopLossPrice && <FormHelperText error>{errors.stopLossPrice}</FormHelperText>}
+								</FormControl>
+
+								<Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1} sx={{ mt: 2 }}>
 									<Typography>
 										{'Amt: '}
 										{(values.quantity * trading.price).toLocaleString(undefined, {
@@ -154,11 +204,7 @@ const OrderForm = ({ ...others }) => {
 									</Typography>
 								</Stack>
 
-								{errors.submit && (
-									<Box sx={{ mt: 3 }}>
-										<FormHelperText error>{errors.submit}</FormHelperText>
-									</Box>
-								)}
+								<Box sx={{ height: '1vw' }}>{errors.submit && <FormHelperText error>{errors.submit}</FormHelperText>}</Box>
 
 								{orderType == OrderTypes.Buy && (
 									<Box sx={{ mt: 2 }}>
