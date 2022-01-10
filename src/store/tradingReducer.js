@@ -1,10 +1,10 @@
 import * as actionTypes from './actions'
-import { OrderCategories, OrderStatus } from 'views/trading/order/OrderForm'
+import { OrderCategories, OrderStatus, OrderTypes } from 'views/trading/order/OrderForm'
 import { executeTransaction } from './utilities'
 
 export const initialState = {
 	symbol: null,
-	price: 0,
+	candle: { open: 0, high: 0, low: 0, close: 0 },
 	time: null,
 	quantity: 0,
 	cash: 10000,
@@ -15,12 +15,33 @@ export const initialState = {
 const tradingReducer = (state = initialState, action) => {
 	switch (action.type) {
 		case actionTypes.SET_PRICE: {
+			let newState = state
+			const candle = action.candle
+			state.transactions
+				.filter((t) => t.status == OrderStatus.Queued)
+				.forEach((transaction) => {
+					let newTransaction
+					if (transaction.type == OrderTypes.Buy && candle.low <= transaction.price) {
+						newTransaction = { ...transaction, price: Math.min(transaction.price, candle.open) }
+					} else if (transaction.type == OrderTypes.Sell && candle.high >= transaction.price) {
+						newTransaction = { ...transaction, price: Math.max(transaction.price, candle.open) }
+					}
+
+					if (newTransaction) {
+						const stateWithoutCurrentTransaction = {
+							...state,
+							transactions: newState.transactions.filter((t) => t.id != transaction.id),
+						}
+						newState = executeTransaction(newTransaction, stateWithoutCurrentTransaction)
+					}
+				})
+
 			return {
-				...state,
+				...newState,
 				symbol: action.symbol,
 				time: action.time,
-				balance: state.cash + state.quantity * action.price,
-				price: action.price,
+				candle,
+				balance: state.cash + state.quantity * action.candle.close,
 			}
 		}
 		case actionTypes.EXECUTE_TRANSACTIONS: {

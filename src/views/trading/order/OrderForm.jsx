@@ -57,7 +57,7 @@ const OrderForm = ({ ...others }) => {
 	}
 
 	const handleOrder = (values, setErrors) => {
-		if (orderType == OrderTypes.Buy && trading.cash < values.quantity * trading.price) {
+		if (orderType == OrderTypes.Buy && trading.cash < values.quantity * trading.candle.close) {
 			setErrors({ submit: 'Not enough Cash balance.' })
 			return
 		}
@@ -66,6 +66,8 @@ const OrderForm = ({ ...others }) => {
 			setErrors({ submit: 'Not enough Stocks.' })
 			return
 		}
+
+		const price = orderCategory == OrderCategories.Market ? trading.candle.close : values.price
 
 		dispatch({
 			type: EXECUTE_TRANSACTIONS,
@@ -76,8 +78,8 @@ const OrderForm = ({ ...others }) => {
 					category: orderCategory,
 					symbol: trading.symbol,
 					quantity: values.quantity,
-					price: trading.price,
-					amt: values.quantity * trading.price,
+					price,
+					amt: values.quantity * price,
 					time: trading.time,
 					status: OrderStatus.Queued,
 				},
@@ -159,7 +161,7 @@ const OrderForm = ({ ...others }) => {
 									<OutlinedInput
 										name="price"
 										type="number"
-										value={(orderCategory == OrderCategories.Market && trading.price) || values.price}
+										value={(orderCategory == OrderCategories.Market && trading.candle.close) || values.price}
 										onBlur={handleBlur}
 										onChange={handleChange}
 										disabled={orderCategory == OrderCategories.Market}
@@ -171,7 +173,7 @@ const OrderForm = ({ ...others }) => {
 								<Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1} sx={{ mt: 2 }}>
 									<Typography>
 										{'Amt: '}
-										{(values.quantity * trading.price).toLocaleString(undefined, {
+										{(values.quantity * trading.candle.close).toLocaleString(undefined, {
 											maximumFractionDigits: 2,
 										})}
 									</Typography>

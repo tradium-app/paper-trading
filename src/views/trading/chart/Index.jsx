@@ -98,7 +98,7 @@ const Chart = () => {
 
 	useEffect(() => {
 		if (!loading && !error && priceData && currentIndex > 0 && currentIndex < priceData.length) {
-			dispatch({ type: SET_PRICE, symbol: data.getNewGame.symbol, price: priceData[currentIndex].close, time: priceData[currentIndex].time })
+			dispatch({ type: SET_PRICE, symbol: data.getNewGame.symbol, candle: priceData[currentIndex], time: priceData[currentIndex].time })
 
 			candleSeries.update(priceData[currentIndex])
 			volumeSeries.update(volumeData[currentIndex])
