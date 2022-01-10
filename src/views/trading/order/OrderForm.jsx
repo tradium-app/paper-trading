@@ -14,12 +14,13 @@ import {
 	ToggleButtonGroup,
 	Typography,
 } from '@mui/material'
-import * as Yup from 'yup'
 import { Formik } from 'formik'
+import * as Yup from 'yup'
 import useScriptRef from 'hooks/useScriptRef'
 import AnimateButton from 'ui-component/extended/AnimateButton'
 import { EXECUTE_TRANSACTIONS } from 'store/actions'
 import FormWrapper from './FormWrapper'
+import PriceInput from './PriceInput'
 
 export const OrderTypes = {
 	Buy: 'Buy',
@@ -95,6 +96,7 @@ const OrderForm = ({ ...others }) => {
 						initialValues={{
 							quantity: 10,
 							submit: null,
+							price: 0,
 						}}
 						validationSchema={Yup.object().shape({
 							quantity: Yup.number().required('Quantity is required').positive().integer(),
@@ -127,7 +129,7 @@ const OrderForm = ({ ...others }) => {
 									</ToggleButton>
 								</ToggleButtonGroup>
 
-								<ToggleButtonGroup fullWidth value={orderCategory} exclusive onChange={handleOrderCategoryClick} sx={{ mt: 2 }}>
+								<ToggleButtonGroup value={orderCategory} onChange={handleOrderCategoryClick} fullWidth exclusive sx={{ mt: 2 }}>
 									<ToggleButton value={OrderCategories.Market} color="success">
 										{OrderCategories.Market}
 									</ToggleButton>
@@ -137,13 +139,12 @@ const OrderForm = ({ ...others }) => {
 								</ToggleButtonGroup>
 
 								<FormControl
-									fullWidth
 									error={Boolean(touched.quantity && errors.quantity)}
 									sx={{ ...theme.typography.customInput, mt: 2 }}
+									fullWidth
 								>
 									<InputLabel shrink>Quantity</InputLabel>
 									<OutlinedInput
-										id="lbl-quantity"
 										type="number"
 										value={values.quantity}
 										name="quantity"
@@ -156,24 +157,16 @@ const OrderForm = ({ ...others }) => {
 									{touched.quantity && errors.quantity && <FormHelperText error>{errors.quantity}</FormHelperText>}
 								</FormControl>
 
-								<FormControl fullWidth error={Boolean(touched.price && errors.price)} sx={{ ...theme.typography.customInput, mt: 1 }}>
+								<FormControl error={Boolean(touched.price && errors.price)} sx={{ ...theme.typography.customInput, mt: 1 }} fullWidth>
 									<InputLabel shrink>Price</InputLabel>
-									<OutlinedInput
-										name="price"
-										type="number"
-										value={(orderCategory == OrderCategories.Market && trading.candle.close) || values.price}
-										onBlur={handleBlur}
-										onChange={handleChange}
-										disabled={orderCategory == OrderCategories.Market}
-										autoComplete="off"
-									/>
+									<PriceInput name="price" value={values.price} marketPrice={trading.candle.close} orderCategory={orderCategory} />
 									{touched.price && errors.price && <FormHelperText error>{errors.price}</FormHelperText>}
 								</FormControl>
 
 								<Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1} sx={{ mt: 2 }}>
 									<Typography>
 										{'Amt: '}
-										{(values.quantity * trading.candle.close).toLocaleString(undefined, {
+										{(values.quantity * values.price).toLocaleString(undefined, {
 											maximumFractionDigits: 2,
 										})}
 									</Typography>
