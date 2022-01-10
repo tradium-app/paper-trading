@@ -1,8 +1,10 @@
 import * as actionTypes from './actions'
+import { OrderCategories, OrderStatus, OrderTypes } from 'views/trading/order/OrderForm'
+import { executeTransaction } from './utilities'
 
 export const initialState = {
 	symbol: null,
-	price: 0,
+	candle: { open: 0, high: 0, low: 0, close: 0 },
 	time: null,
 	quantity: 0,
 	cash: 10000,
@@ -13,29 +15,49 @@ export const initialState = {
 const tradingReducer = (state = initialState, action) => {
 	switch (action.type) {
 		case actionTypes.SET_PRICE: {
-			return {
-				...state,
-				symbol: action.symbol,
-				time: action.time,
-				balance: state.cash + state.quantity * action.price,
-				price: action.price,
-			}
-		}
-		case actionTypes.EXECUTE_TRANSACTION: {
-			const transaction = action.transaction
-			transaction.amt = transaction.quantity * transaction.price
-			const newCash = transaction.type == 'Buy' ? state.cash - transaction.amt : state.cash + transaction.amt
-			const newQuantity = transaction.type == 'Buy' ? state.quantity + transaction.quantity : state.quantity - transaction.quantity
-			const newBalance = newCash + newQuantity * transaction.price
-			transaction.cash = newCash
-			transaction.order = state.transactions.length + 1
+			let newState = state
+			const candle = action.candle
+			state.transactions
+				.filter((t) => t.status == OrderStatus.Queued)
+				.forEach((transaction) => {
+					let newTransaction
+					if (transaction.type == OrderTypes.Buy && candle.low <= transaction.price) {
+						newTransaction = { ...transaction, price: Math.min(transaction.price, candle.open) }
+					} else if (transaction.type == OrderTypes.Sell && candle.high >= transaction.price) {
+						newTransaction = { ...transaction, price: Math.max(transaction.price, candle.open) }
+					}
+
+					if (newTransaction) {
+						const stateWithoutCurrentTransaction = {
+							...state,
+							transactions: newState.transactions.filter((t) => t.id != transaction.id),
+						}
+						newState = executeTransaction(newTransaction, stateWithoutCurrentTransaction)
+					}
+				})
 
 			return {
+				...newState,
+				symbol: action.symbol,
+				time: action.time,
+				candle,
+				balance: state.cash + state.quantity * action.candle.close,
+			}
+		}
+		case actionTypes.EXECUTE_TRANSACTIONS: {
+			const newState = {
 				...state,
-				transactions: state.transactions.concat(transaction),
-				cash: newCash,
-				quantity: newQuantity,
-				balance: newBalance,
+				transactions: state.transactions.concat(action.transactions),
+			}
+			const marketTransaction = action.transactions.find((t) => t.category == OrderCategories.Market && t.status == OrderStatus.Queued)
+
+			if (marketTransaction) {
+				const stateWithoutMarketTransaction = { ...state, transactions: newState.transactions.filter((t) => t.id != marketTransaction.id) }
+				const stateWithAllTransactions = executeTransaction(marketTransaction, stateWithoutMarketTransaction)
+
+				return stateWithAllTransactions
+			} else {
+				return newState
 			}
 		}
 		case actionTypes.CLOSE_ALL_ORDERS: {

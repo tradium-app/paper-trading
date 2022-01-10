@@ -18,17 +18,22 @@ import * as Yup from 'yup'
 import { Formik } from 'formik'
 import useScriptRef from 'hooks/useScriptRef'
 import AnimateButton from 'ui-component/extended/AnimateButton'
-import { EXECUTE_TRANSACTION } from 'store/actions'
+import { EXECUTE_TRANSACTIONS } from 'store/actions'
 import FormWrapper from './FormWrapper'
 
-const OrderTypes = {
+export const OrderTypes = {
 	Buy: 'Buy',
 	Sell: 'Sell',
 }
 
-const OrderCategories = {
+export const OrderCategories = {
 	Market: 'Market',
 	Limit: 'Limit',
+}
+
+export const OrderStatus = {
+	Queued: 'Queued',
+	Executed: 'Executed',
 }
 
 const OrderForm = ({ ...others }) => {
@@ -38,23 +43,6 @@ const OrderForm = ({ ...others }) => {
 	const dispatch = useDispatch()
 	const [orderType, setOrderType] = useState(OrderTypes.Buy)
 	const [orderCategory, setOrderCategory] = useState(OrderCategories.Market)
-
-	const handleOrder = (values, setErrors) => {
-		if (orderType == OrderTypes.Buy && trading.cash < values.quantity * trading.price) {
-			setErrors({ submit: 'Not enough Cash balance.' })
-			return
-		}
-
-		if (orderType == OrderTypes.Sell && trading.quantity < values.quantity) {
-			setErrors({ submit: 'Not enough Stocks.' })
-			return
-		}
-
-		dispatch({
-			type: EXECUTE_TRANSACTION,
-			transaction: { type: orderType, symbol: trading.symbol, quantity: values.quantity, price: trading.price, time: trading.time },
-		})
-	}
 
 	const handleOrderTypeClick = (_, orderType) => {
 		if (orderType != null) {
@@ -66,6 +54,37 @@ const OrderForm = ({ ...others }) => {
 		if (orderCategory != null) {
 			setOrderCategory(orderCategory)
 		}
+	}
+
+	const handleOrder = (values, setErrors) => {
+		if (orderType == OrderTypes.Buy && trading.cash < values.quantity * trading.candle.close) {
+			setErrors({ submit: 'Not enough Cash balance.' })
+			return
+		}
+
+		if (orderType == OrderTypes.Sell && trading.quantity < values.quantity) {
+			setErrors({ submit: 'Not enough Stocks.' })
+			return
+		}
+
+		const price = orderCategory == OrderCategories.Market ? trading.candle.close : values.price
+
+		dispatch({
+			type: EXECUTE_TRANSACTIONS,
+			transactions: [
+				{
+					id: Date.now(),
+					type: orderType,
+					category: orderCategory,
+					symbol: trading.symbol,
+					quantity: values.quantity,
+					price,
+					amt: values.quantity * price,
+					time: trading.time,
+					status: OrderStatus.Queued,
+				},
+			],
+		})
 	}
 
 	return (
@@ -107,6 +126,7 @@ const OrderForm = ({ ...others }) => {
 										{OrderTypes.Sell}
 									</ToggleButton>
 								</ToggleButtonGroup>
+
 								<ToggleButtonGroup fullWidth value={orderCategory} exclusive onChange={handleOrderCategoryClick} sx={{ mt: 2 }}>
 									<ToggleButton value={OrderCategories.Market} color="success">
 										{OrderCategories.Market}
@@ -121,9 +141,9 @@ const OrderForm = ({ ...others }) => {
 									error={Boolean(touched.quantity && errors.quantity)}
 									sx={{ ...theme.typography.customInput, mt: 2 }}
 								>
-									<InputLabel htmlFor="outlined-adornment-quantity">Quantity</InputLabel>
+									<InputLabel shrink>Quantity</InputLabel>
 									<OutlinedInput
-										id="outlined-adornment-quantity"
+										id="lbl-quantity"
 										type="number"
 										value={values.quantity}
 										name="quantity"
@@ -133,32 +153,33 @@ const OrderForm = ({ ...others }) => {
 										inputProps={{ step: '1' }}
 										autoComplete="off"
 									/>
-									{touched.quantity && errors.quantity && (
-										<FormHelperText error id="standard-weight-helper-text-quantity">
-											{errors.quantity}
-										</FormHelperText>
-									)}
+									{touched.quantity && errors.quantity && <FormHelperText error>{errors.quantity}</FormHelperText>}
 								</FormControl>
-								<Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
-									<Typography>
-										{'Price: '}
-										{trading.price.toLocaleString(undefined, {
-											maximumFractionDigits: 2,
-										})}
-									</Typography>
+
+								<FormControl fullWidth error={Boolean(touched.price && errors.price)} sx={{ ...theme.typography.customInput, mt: 1 }}>
+									<InputLabel shrink>Price</InputLabel>
+									<OutlinedInput
+										name="price"
+										type="number"
+										value={(orderCategory == OrderCategories.Market && trading.candle.close) || values.price}
+										onBlur={handleBlur}
+										onChange={handleChange}
+										disabled={orderCategory == OrderCategories.Market}
+										autoComplete="off"
+									/>
+									{touched.price && errors.price && <FormHelperText error>{errors.price}</FormHelperText>}
+								</FormControl>
+
+								<Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1} sx={{ mt: 2 }}>
 									<Typography>
 										{'Amt: '}
-										{(values.quantity * trading.price).toLocaleString(undefined, {
+										{(values.quantity * trading.candle.close).toLocaleString(undefined, {
 											maximumFractionDigits: 2,
 										})}
 									</Typography>
 								</Stack>
 
-								{errors.submit && (
-									<Box sx={{ mt: 3 }}>
-										<FormHelperText error>{errors.submit}</FormHelperText>
-									</Box>
-								)}
+								<Box sx={{ height: '1vw' }}>{errors.submit && <FormHelperText error>{errors.submit}</FormHelperText>}</Box>
 
 								{orderType == OrderTypes.Buy && (
 									<Box sx={{ mt: 2 }}>
