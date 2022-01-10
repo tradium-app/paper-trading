@@ -6,7 +6,7 @@ import GET_NEW_GAME_QUERY from './Chart_Query'
 import computeChartData from './computeChartData'
 import { useLocalStorage } from 'beautiful-react-hooks'
 import { emaPeriod, defaultChartOptions, candleSeriesOptions, volumeSeriesOptions, emaSeriesOptions, markerOptions } from './configs'
-import { Box, Fab } from '@mui/material'
+import { Box, Fab, FormLabel, InputLabel, InputLabel as label } from '@mui/material'
 import PlayPauseBtn from './PlayPauseBtn'
 import Forward from '@mui/icons-material/Forward'
 import PlaylistRemoveOutlinedIcon from '@mui/icons-material/PlaylistRemoveOutlined'
@@ -143,6 +143,26 @@ const Chart = () => {
 	return (
 		<Box sx={{ transform: 'translateZ(0px)', flexGrow: 1 }}>
 			<div ref={containerId} slot="test" />
+			<Box sx={{ '& > :not(style)': { m: 1 }, position: 'absolute', top: 8, left: 16, zIndex: 99 }}>
+				<div>
+					{'Quantity: '}
+					{trading.quantity.toLocaleString(undefined, {
+						maximumFractionDigits: 0,
+					})}
+				</div>
+				<div>
+					{'Cash: '}
+					{trading.cash.toLocaleString(undefined, {
+						maximumFractionDigits: 0,
+					})}
+				</div>
+				<div>
+					{'Balance: '}
+					{trading.balance.toLocaleString(undefined, {
+						maximumFractionDigits: 0,
+					})}
+				</div>
+			</Box>
 			<Box sx={{ '& > :not(style)': { m: 1 }, position: 'absolute', top: 8, right: 16, zIndex: 99 }}>
 				<PlayPauseBtn playStatus={playStatus} setPlayStatus={setPlayStatus} />
 				<Tooltip title="Move one step forward">
@@ -155,12 +175,6 @@ const Chart = () => {
 						<PlaylistRemoveOutlinedIcon />
 					</Fab>
 				</Tooltip>
-				<Fab variant="extended" aria-label="edit">
-					{'Balance: '}
-					{trading.balance.toLocaleString(undefined, {
-						maximumFractionDigits: 0,
-					})}
-				</Fab>
 			</Box>
 		</Box>
 	)
