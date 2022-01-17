@@ -1,4 +1,7 @@
-export const emaPeriod = 26
+export const emaPeriod = {
+	low: 20,
+	high: 50,
+}
 export const rsiPeriod = 14
 
 export const toastOptions = {

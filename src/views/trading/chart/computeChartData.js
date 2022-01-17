@@ -2,7 +2,7 @@ import moment from 'moment'
 import { ema, rsi } from 'technicalindicators'
 import { emaPeriod, rsiPeriod } from './configs'
 
-const computeChartData = (gameData, showEma26, showRSI) => {
+const computeChartData = (gameData, showRSI) => {
 	let priceData = [...gameData.price_history, ...gameData.future_price_history]
 
 	priceData = priceData
@@ -24,8 +24,10 @@ const computeChartData = (gameData, showEma26, showRSI) => {
 		color: d.open > d.close ? 'rgba(255,82,82, 0.2)' : 'rgba(0, 150, 136, 0.2)',
 	}))
 
-	let emaData = []
-	showEma26 && (emaData = computeSignalData(priceData, emaPeriod, ema))
+	const emaData = {
+		high: computeSignalData(priceData, emaPeriod.high, ema),
+		low: computeSignalData(priceData, emaPeriod.low, ema),
+	}
 
 	let rsiData = []
 	showRSI && (rsiData = computeSignalData(priceData, rsiPeriod, rsi))

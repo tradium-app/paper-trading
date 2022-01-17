@@ -4,7 +4,6 @@ import { useQuery } from '@apollo/client'
 import { createChart, LineStyle } from 'lightweight-charts'
 import GET_NEW_GAME_QUERY from './Chart_Query'
 import computeChartData from './computeChartData'
-import { useLocalStorage } from 'beautiful-react-hooks'
 import { emaPeriod, defaultChartOptions, candleSeriesOptions, volumeSeriesOptions, emaSeriesOptions, markerOptions } from './configs'
 import { Box, Fab } from '@mui/material'
 import PlayPauseBtn from './PlayPauseBtn'
@@ -24,9 +23,8 @@ const Chart = () => {
 	const containerId = useRef(null)
 	const [candleSeries, setCandleSeries] = useState(null)
 	const [volumeSeries, setVolumeSeries] = useState(null)
-	const [emaSeries, setEmaSeries] = useState(null)
-	const [showEma26] = useLocalStorage('showEma26', 1)
-	const [showRSI] = useLocalStorage('showRSI', 1)
+	const [emaHighSeries, setEmaHighSeries] = useState(null)
+	const [emaLowSeries, setEmaLowSeries] = useState(null)
 	const dispatch = useDispatch()
 	const trading = useSelector((state) => state.trading)
 	const [currentIndex, setCurrentIndex] = useState(0)
@@ -47,7 +45,8 @@ const Chart = () => {
 		let candleSeries = containerId.current.addCandlestickSeries(candleSeriesOptions)
 		setCandleSeries(candleSeries)
 		setVolumeSeries(containerId.current.addHistogramSeries(volumeSeriesOptions))
-		setEmaSeries(containerId.current.addLineSeries(emaSeriesOptions))
+		setEmaHighSeries(containerId.current.addLineSeries({ ...emaSeriesOptions, color: 'rgba(235, 43, 75, 0.8)' }))
+		setEmaLowSeries(containerId.current.addLineSeries(emaSeriesOptions))
 
 		containerId.current.subscribeClick((param) => {
 			const clickedPrice = candleSeries.coordinateToPrice(param.point.y)
@@ -82,7 +81,7 @@ const Chart = () => {
 	let priceData, volumeData, emaData, predictionPoint
 
 	if (!loading && !error && data.getNewGame) {
-		;({ priceData, volumeData, emaData } = computeChartData(data.getNewGame, showEma26, showRSI))
+		;({ priceData, volumeData, emaData } = computeChartData(data.getNewGame))
 		predictionPoint = priceData[data.getNewGame.price_history.length].time
 	}
 
@@ -90,7 +89,8 @@ const Chart = () => {
 		if (!loading && !error && priceData) {
 			candleSeries.setData(priceData.slice(0, data.getNewGame.price_history.length))
 			volumeSeries.setData(volumeData.slice(0, data.getNewGame.price_history.length))
-			showEma26 && emaSeries.setData(emaData.filter((ed) => ed.time <= predictionPoint))
+			emaHighSeries.setData(emaData.high.filter((ed) => ed.time <= predictionPoint))
+			emaLowSeries.setData(emaData.low.filter((ed) => ed.time <= predictionPoint))
 
 			setCurrentIndex(data?.getNewGame?.price_history?.length)
 		}
@@ -102,7 +102,8 @@ const Chart = () => {
 
 			candleSeries.update(priceData[currentIndex])
 			volumeSeries.update(volumeData[currentIndex])
-			showEma26 && emaSeries.update(emaData[currentIndex - emaPeriod])
+			emaHighSeries.update(emaData.high[currentIndex - emaPeriod.high])
+			emaLowSeries.update(emaData.low[currentIndex - emaPeriod.low])
 		}
 
 		if (!loading && priceData && currentIndex > priceData.length - 1) {
@@ -162,6 +163,9 @@ const Chart = () => {
 						maximumFractionDigits: 0,
 					})}
 				</div>
+				<div>{'..................'}</div>
+				<div>{'Low Ema: 20'}</div>
+				<div>{'High Ema: 50'}</div>
 			</Box>
 			<Box sx={{ '& > :not(style)': { m: 1 }, position: 'absolute', top: 8, right: 16, zIndex: 99 }}>
 				<PlayPauseBtn playStatus={playStatus} setPlayStatus={setPlayStatus} />
