@@ -3,6 +3,7 @@ export const emaPeriod = {
 	high: 50,
 }
 export const rsiPeriod = 14
+export const bbPeriod = 20
 
 export const toastOptions = {
 	position: 'top',

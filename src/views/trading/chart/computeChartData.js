@@ -1,6 +1,6 @@
 import moment from 'moment'
-import { ema, rsi } from 'technicalindicators'
-import { emaPeriod, rsiPeriod } from './configs'
+import { ema, rsi, bollingerbands } from 'technicalindicators'
+import { bbPeriod, emaPeriod, rsiPeriod } from './configs'
 
 const computeChartData = (gameData, showRSI) => {
 	let priceData = [...gameData.price_history, ...gameData.future_price_history]
@@ -32,7 +32,9 @@ const computeChartData = (gameData, showRSI) => {
 	let rsiData = []
 	showRSI && (rsiData = computeSignalData(priceData, rsiPeriod, rsi))
 
-	return { priceData, volumeData, emaData, rsiData }
+	const bbData = computeSignalData(priceData, bbPeriod, bollingerbands)
+
+	return { priceData, volumeData, emaData, rsiData, bbData }
 }
 
 const computeSignalData = (priceData, period, computeFunction) => {
@@ -40,6 +42,7 @@ const computeSignalData = (priceData, period, computeFunction) => {
 	const dataOnClose = computeFunction({
 		period,
 		values: inputData,
+		stdDev: 2,
 	})
 
 	return priceData.slice(period).map((d, index) => ({

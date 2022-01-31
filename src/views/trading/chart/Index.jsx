@@ -4,14 +4,13 @@ import { useQuery } from '@apollo/client'
 import { createChart, LineStyle } from 'lightweight-charts'
 import GET_NEW_GAME_QUERY from './Chart_Query'
 import computeChartData from './computeChartData'
-import { emaPeriod, defaultChartOptions, candleSeriesOptions, volumeSeriesOptions, emaSeriesOptions, markerOptions } from './configs'
-import { Box, Fab } from '@mui/material'
+import { emaPeriod, defaultChartOptions, candleSeriesOptions, volumeSeriesOptions, emaSeriesOptions, markerOptions, bbPeriod } from './configs'
+import { Box, Fab, Tooltip } from '@mui/material'
 import PlayPauseBtn from './PlayPauseBtn'
-import Forward from '@mui/icons-material/Forward'
-import PlaylistRemoveOutlinedIcon from '@mui/icons-material/PlaylistRemoveOutlined'
-import Tooltip from '@mui/material/Tooltip'
+import { PlaylistRemoveOutlined, Forward } from '@mui/icons-material'
 import { SET_PRICE, CLOSE_ALL_ORDERS } from 'store/actions'
 import { OrderStatus } from '../order/OrderForm'
+import VisibilityBtn from './VisibilityBtn'
 
 export const PlayStatus = {
 	playing: 'playing',
@@ -25,12 +24,15 @@ const Chart = () => {
 	const [candleSeries, setCandleSeries] = useState(null)
 	const [volumeSeries, setVolumeSeries] = useState(null)
 	const [emaHighSeries, setEmaHighSeries] = useState(null)
-	const [emaLowSeries, setEmaLowSeries] = useState(null)
+	const [bbUpperSeries, setBbUpperSeries] = useState(null)
+	const [bbMiddleSeries, setBbMiddleSeries] = useState(null)
+	const [bbLowerSeries, setBbLowerSeries] = useState(null)
 	const dispatch = useDispatch()
 	const trading = useSelector((state) => state.trading)
 	const [currentIndex, setCurrentIndex] = useState(0)
 	const [playStatus, setPlayStatus] = useState(PlayStatus.playing)
 	const [pricelines, setPricelines] = useState([])
+	const [showBB, setShowBB] = useState(false)
 
 	const { loading, error, data, refetch } = useQuery(GET_NEW_GAME_QUERY, {
 		fetchPolicy: 'no-cache',
@@ -47,7 +49,9 @@ const Chart = () => {
 		setCandleSeries(candleSeries)
 		setVolumeSeries(containerId.current.addHistogramSeries(volumeSeriesOptions))
 		setEmaHighSeries(containerId.current.addLineSeries({ ...emaSeriesOptions, color: 'rgba(235, 43, 75, 0.8)' }))
-		setEmaLowSeries(containerId.current.addLineSeries(emaSeriesOptions))
+		setBbUpperSeries(containerId.current.addLineSeries(emaSeriesOptions))
+		setBbMiddleSeries(containerId.current.addLineSeries(emaSeriesOptions))
+		setBbLowerSeries(containerId.current.addLineSeries(emaSeriesOptions))
 
 		containerId.current.subscribeClick((param) => {
 			const clickedPrice = candleSeries.coordinateToPrice(param.point.y)
@@ -79,10 +83,10 @@ const Chart = () => {
 		if (stockUpdater) return () => clearInterval(stockUpdater)
 	}, [playStatus])
 
-	let priceData, volumeData, emaData, predictionPoint
+	let priceData, volumeData, emaData, bbData, predictionPoint
 
 	if (!loading && !error && data.getNewGame) {
-		;({ priceData, volumeData, emaData } = computeChartData(data.getNewGame))
+		;({ priceData, volumeData, emaData, bbData } = computeChartData(data.getNewGame, false))
 		predictionPoint = priceData[data.getNewGame.price_history.length].time
 	}
 
@@ -91,7 +95,20 @@ const Chart = () => {
 			candleSeries.setData(priceData.slice(0, data.getNewGame.price_history.length))
 			volumeSeries.setData(volumeData.slice(0, data.getNewGame.price_history.length))
 			emaHighSeries.setData(emaData.high.filter((ed) => ed.time <= predictionPoint))
-			emaLowSeries.setData(emaData.low.filter((ed) => ed.time <= predictionPoint))
+			const filteredBB = bbData.filter((bb) => bb.time <= predictionPoint)
+			const upperBB = filteredBB.map((bb) => {
+				return { ...bb, value: bb.value.upper }
+			})
+			const middleBB = filteredBB.map((bb) => {
+				return { ...bb, value: bb.value.middle }
+			})
+			const lowerBB = filteredBB.map((bb) => {
+				return { ...bb, value: bb.value.lower }
+			})
+
+			bbUpperSeries.setData(upperBB)
+			bbMiddleSeries.setData(middleBB)
+			bbLowerSeries.setData(lowerBB)
 
 			setCurrentIndex(data?.getNewGame?.price_history?.length)
 		}
@@ -104,7 +121,11 @@ const Chart = () => {
 			candleSeries.update(priceData[currentIndex])
 			volumeSeries.update(volumeData[currentIndex])
 			emaHighSeries.update(emaData.high[currentIndex - emaPeriod.high])
-			emaLowSeries.update(emaData.low[currentIndex - emaPeriod.low])
+
+			const currentBB = bbData[currentIndex - bbPeriod]
+			bbUpperSeries.update({ ...currentBB, value: currentBB.value.upper })
+			bbMiddleSeries.update({ ...currentBB, value: currentBB.value.middle })
+			bbLowerSeries.update({ ...currentBB, value: currentBB.value.lower })
 		}
 
 		if (!loading && priceData && currentIndex > priceData.length - 1) {
@@ -165,8 +186,11 @@ const Chart = () => {
 					})}
 				</div>
 				<div>{'..................'}</div>
-				<div>{'Low Ema: 20'}</div>
-				<div>{'High Ema: 50'}</div>
+				<div>{'Ema: 50'}</div>
+				<div>
+					{'Bollinger (20): '}
+					<VisibilityBtn status={showBB} setStatus={setShowBB} />
+				</div>
 			</Box>
 			<Box sx={{ '& > :not(style)': { m: 1 }, position: 'absolute', top: 8, right: 16, zIndex: 99 }}>
 				<PlayPauseBtn playStatus={playStatus} setPlayStatus={setPlayStatus} />
@@ -177,7 +201,7 @@ const Chart = () => {
 				</Tooltip>
 				<Tooltip title="Remove All Pricelines">
 					<Fab color="primary" onClick={removePriceLines}>
-						<PlaylistRemoveOutlinedIcon />
+						<PlaylistRemoveOutlined />
 					</Fab>
 				</Tooltip>
 			</Box>
