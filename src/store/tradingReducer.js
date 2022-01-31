@@ -27,7 +27,7 @@ const tradingReducer = (state = initialState, action) => {
 						inBetween(transaction.price, candle.high, candle.low)
 					) {
 						const newPrice = inBetween(transaction.price, candle.high, candle.low) ? transaction.price : candle.open
-						newTransaction = { ...transaction, price: newPrice }
+						newTransaction = { ...transaction, time: action.time, price: newPrice }
 					}
 
 					if (newTransaction) {

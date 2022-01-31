@@ -11,6 +11,7 @@ import Forward from '@mui/icons-material/Forward'
 import PlaylistRemoveOutlinedIcon from '@mui/icons-material/PlaylistRemoveOutlined'
 import Tooltip from '@mui/material/Tooltip'
 import { SET_PRICE, CLOSE_ALL_ORDERS } from 'store/actions'
+import { OrderStatus } from '../order/OrderForm'
 
 export const PlayStatus = {
 	playing: 'playing',
@@ -117,7 +118,7 @@ const Chart = () => {
 			let markers = []
 
 			trading?.transactions
-				.filter((transaction) => transaction.symbol == data.getNewGame.symbol)
+				.filter((transaction) => transaction.symbol == data.getNewGame.symbol && transaction.status == OrderStatus.Executed)
 				.filter(
 					(transaction) =>
 						new Date(transaction.time) >= new Date(priceData[0].time) &&
