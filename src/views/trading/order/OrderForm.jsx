@@ -29,7 +29,7 @@ export const OrderTypes = {
 
 export const OrderCategories = {
 	Market: 'Market',
-	Limit: 'Limit',
+	Stop: 'Stop',
 }
 
 export const OrderStatus = {
@@ -133,8 +133,8 @@ const OrderForm = ({ ...others }) => {
 									<ToggleButton value={OrderCategories.Market} color="success">
 										{OrderCategories.Market}
 									</ToggleButton>
-									<ToggleButton value={OrderCategories.Limit} color="error">
-										{OrderCategories.Limit}
+									<ToggleButton value={OrderCategories.Stop} color="error">
+										{OrderCategories.Stop}
 									</ToggleButton>
 								</ToggleButtonGroup>
 

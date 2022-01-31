@@ -1,5 +1,5 @@
 import * as actionTypes from './actions'
-import { OrderCategories, OrderStatus, OrderTypes } from 'views/trading/order/OrderForm'
+import { OrderCategories, OrderStatus } from 'views/trading/order/OrderForm'
 import { executeTransaction } from './utilities'
 
 export const initialState = {
@@ -21,10 +21,13 @@ const tradingReducer = (state = initialState, action) => {
 				.filter((t) => t.status == OrderStatus.Queued)
 				.forEach((transaction) => {
 					let newTransaction
-					if (transaction.type == OrderTypes.Buy && candle.low <= transaction.price) {
-						newTransaction = { ...transaction, price: Math.min(transaction.price, candle.open) }
-					} else if (transaction.type == OrderTypes.Sell && candle.high >= transaction.price) {
-						newTransaction = { ...transaction, price: Math.max(transaction.price, candle.open) }
+					if (
+						inBetween(transaction.price, state.candle.low, candle.high) ||
+						inBetween(transaction.price, state.candle.high, candle.low) ||
+						inBetween(transaction.price, candle.high, candle.low)
+					) {
+						const newPrice = inBetween(transaction.price, candle.high, candle.low) ? transaction.price : candle.open
+						newTransaction = { ...transaction, price: newPrice }
 					}
 
 					if (newTransaction) {
@@ -84,6 +87,10 @@ const tradingReducer = (state = initialState, action) => {
 		default:
 			return state
 	}
+}
+
+const inBetween = (num, num1, num2) => {
+	return num >= Math.min(num1, num2) && num <= Math.max(num1, num2)
 }
 
 export default tradingReducer
