@@ -54,6 +54,7 @@
 		"no-use-before-define": "off",
 		"arrow-body-style": "off",
 		"eqeqeq": "off",
+		"react/display-name": "off",
 		"prettier/prettier": [
 			"warn",
 			{
