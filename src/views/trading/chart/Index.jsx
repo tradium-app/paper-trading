@@ -69,6 +69,18 @@ const Chart = () => {
 	}, [])
 
 	useEffect(() => {
+		if (bbUpperSeries) {
+			if (showBB) [bbUpperSeries, bbMiddleSeries, bbLowerSeries].forEach((s) => s.applyOptions(emaSeriesOptions))
+			else
+				[bbUpperSeries, bbMiddleSeries, bbLowerSeries].forEach((s) =>
+					s.applyOptions({
+						color: 'rgba(0, 0, 255, 0.0)',
+					}),
+				)
+		}
+	}, [showBB, bbUpperSeries])
+
+	useEffect(() => {
 		let stockUpdater
 		if (playStatus == PlayStatus.playing) {
 			stockUpdater = setInterval(() => {

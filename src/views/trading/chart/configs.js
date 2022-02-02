@@ -39,6 +39,7 @@ export const emaSeriesOptions = {
 	crosshairMarkerVisible: false,
 	lineWidth: 1,
 	lineStyle: 2,
+	color: 'rgba(0, 0, 255, 0.6)',
 }
 
 export const rsiSeriesOptions = {

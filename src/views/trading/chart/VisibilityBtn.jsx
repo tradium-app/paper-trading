@@ -1,6 +1,6 @@
 import React from 'react'
 import { IconButton } from '@mui/material'
-import { Visibility } from '@mui/icons-material'
+import { Visibility, VisibilityOff } from '@mui/icons-material'
 import { useTheme } from '@mui/system'
 
 const VisibilityBtn = ({ status, setStatus }) => {
@@ -11,12 +11,9 @@ const VisibilityBtn = ({ status, setStatus }) => {
 	}
 
 	return (
-		<IconButton
-			aria-label="show/hide"
-			onClick={btnClickHandler}
-			sx={{ color: status ? theme.palette.text['primary'] : theme.palette.text['secondary'] }}
-		>
-			<Visibility />
+		<IconButton aria-label="show/hide" onClick={btnClickHandler} sx={{ color: theme.palette.text['secondary'] }} size="small">
+			{status && <Visibility />}
+			{!status && <VisibilityOff />}
 		</IconButton>
 	)
 }
