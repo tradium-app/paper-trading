@@ -70,8 +70,11 @@ const Chart = () => {
 
 	useEffect(() => {
 		if (bbUpperSeries) {
-			if (showBB) [bbUpperSeries, bbMiddleSeries, bbLowerSeries].forEach((s) => s.applyOptions(emaSeriesOptions))
-			else
+			if (showBB) {
+				bbUpperSeries.applyOptions(emaSeriesOptions)
+				bbMiddleSeries.applyOptions({ ...emaSeriesOptions, color: 'rgba(39, 165, 154, 0.9)' })
+				bbLowerSeries.applyOptions(emaSeriesOptions)
+			} else
 				[bbUpperSeries, bbMiddleSeries, bbLowerSeries].forEach((s) =>
 					s.applyOptions({
 						color: 'rgba(0, 0, 255, 0.0)',
