@@ -21,7 +21,7 @@ const OrderHistory = () => {
 						<TableRow>
 							<TableCell>Type</TableCell>
 							<TableCell align="right">Qty</TableCell>
-							<TableCell align="right">Amt</TableCell>
+							<TableCell align="right">Price</TableCell>
 							<TableCell align="right"></TableCell>
 						</TableRow>
 					</TableHead>
@@ -38,7 +38,7 @@ const OrderHistory = () => {
 									</TableCell>
 									<TableCell align="right">
 										<Typography fontSize="small">
-											{transaction.amt.toLocaleString(undefined, {
+											{transaction.price.toLocaleString(undefined, {
 												maximumFractionDigits: 2,
 											})}
 										</Typography>
