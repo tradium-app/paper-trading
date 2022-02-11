@@ -30,9 +30,9 @@ const Chart = () => {
 	const dispatch = useDispatch()
 	const trading = useSelector((state) => state.trading)
 	const [currentIndex, setCurrentIndex] = useState(0)
-	const [playStatus, setPlayStatus] = useState(PlayStatus.playing)
+	const [playStatus, setPlayStatus] = useState(PlayStatus.paused)
 	const [pricelines, setPricelines] = useState([])
-	const [showBB, setShowBB] = useState(false)
+	const [showBB, setShowBB] = useState(true)
 
 	const { loading, error, data, refetch } = useQuery(GET_NEW_GAME_QUERY, {
 		fetchPolicy: 'no-cache',
