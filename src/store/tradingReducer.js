@@ -63,6 +63,14 @@ const tradingReducer = (state = initialState, action) => {
 				return newState
 			}
 		}
+		case actionTypes.CANCEL_TRANSACTION: {
+			const newState = {
+				...state,
+				transactions: state.transactions.filter((transaction) => transaction.id != action.transactionId),
+			}
+
+			return newState
+		}
 		case actionTypes.CLOSE_ALL_ORDERS: {
 			if (state.quantity <= 0) {
 				return state

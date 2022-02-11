@@ -1,12 +1,21 @@
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { IconButton, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material'
 import Paper from '@mui/material/Paper'
 import { HighlightOffTwoTone, DoneAll } from '@mui/icons-material'
 import MainCard from 'ui-component/cards/MainCard'
 import { OrderStatus } from '../order/OrderForm'
+import { CANCEL_TRANSACTION } from 'store/actions'
 
 const OrderHistory = () => {
 	const trading = useSelector((state) => state.trading)
+	const dispatch = useDispatch()
+
+	const cancelOrder = (transactionId) => {
+		dispatch({
+			type: CANCEL_TRANSACTION,
+			transactionId,
+		})
+	}
 
 	return (
 		<MainCard sx={{ marginTop: 2 }}>
@@ -44,7 +53,10 @@ const OrderHistory = () => {
 										</Typography>
 									</TableCell>
 									<TableCell align="right">
-										<IconButton disabled={transaction.status === OrderStatus.Executed}>
+										<IconButton
+											disabled={transaction.status === OrderStatus.Executed}
+											onClick={() => cancelOrder(transaction.id)}
+										>
 											{transaction.status === OrderStatus.Queued && <HighlightOffTwoTone fontSize="small" color="primary" />}
 											{transaction.status === OrderStatus.Executed && <DoneAll fontSize="small" color="disabled" />}
 										</IconButton>
