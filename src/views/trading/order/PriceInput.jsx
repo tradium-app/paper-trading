@@ -2,13 +2,13 @@ import { useField } from 'formik'
 import { useEffect } from 'react'
 import { OutlinedInput } from '@mui/material'
 
-const PriceInput = ({ name, value, onBlur }) => {
-	const [field, meta, helpers] = useField({ name, value })
+const PriceInput = ({ name, initialValue, onBlur }) => {
+	const [field, meta, helpers] = useField({ name, value: initialValue })
 	const { setValue, setTouched } = helpers
 
 	useEffect(() => {
-		setValue(value)
-	}, [value])
+		setValue(initialValue)
+	}, [initialValue])
 
 	return (
 		<OutlinedInput

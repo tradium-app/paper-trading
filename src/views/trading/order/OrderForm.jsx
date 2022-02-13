@@ -157,12 +157,7 @@ const OrderForm = ({ ...others }) => {
 
 								<FormControl error={Boolean(touched.price && errors.price)} sx={{ ...theme.typography.customInput, mt: 1 }} fullWidth>
 									<InputLabel shrink>Price</InputLabel>
-									<PriceInput
-										name="price"
-										value={values.price != 0 ? values.price : trading.candle.close}
-										onBlur={handleBlur}
-										autoComplete="off"
-									/>
+									<PriceInput name="price" initialValue={trading.candle.close} onBlur={handleBlur} autoComplete="off" />
 									{touched.price && errors.price && <FormHelperText error>{errors.price}</FormHelperText>}
 								</FormControl>
 
@@ -175,12 +170,7 @@ const OrderForm = ({ ...others }) => {
 										autoComplete="off"
 									/>
 									{values.isStopLossEnabled && (
-										<PriceInput
-											name="stopLossPrice"
-											value={values.stopLossPrice != 0 ? values.stopLossPrice : trading.candle.close}
-											onBlur={handleBlur}
-											autoComplete="off"
-										/>
+										<PriceInput name="stopLossPrice" initialValue={trading.candle.close} onBlur={handleBlur} autoComplete="off" />
 									)}
 									{touched.price && errors.price && <FormHelperText error>{errors.price}</FormHelperText>}
 								</FormControl>
