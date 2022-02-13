@@ -64,7 +64,7 @@ const OrderForm = ({ ...others }) => {
 		}
 
 		const transaction = {
-			id: Date.now(),
+			id: Math.floor(Math.random() * 1000),
 			type: orderType,
 			category: OrderCategories.Stop,
 			symbol: trading.symbol,
@@ -77,6 +77,7 @@ const OrderForm = ({ ...others }) => {
 
 		const stopLessTransaction = values.isStopLossEnabled && {
 			...transaction,
+			id: transaction.id + 1,
 			price: values.stopLossPrice,
 			amt: values.quantity * values.stopLossPrice,
 		}
