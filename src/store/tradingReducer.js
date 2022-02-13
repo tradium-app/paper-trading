@@ -1,13 +1,15 @@
 import * as actionTypes from './actions'
-import { OrderCategories, OrderStatus } from 'views/trading/order/OrderForm'
-import { executeTransaction } from './utilities'
+import { OrderStatus } from 'views/trading/order/OrderForm'
+import { executeTransaction, queueTransactions, cancelTransaction } from './utilities'
 
 export const initialState = {
 	symbol: null,
 	candle: { open: 0, high: 0, low: 0, close: 0 },
 	time: null,
 	quantity: 0,
+	lockedQuantity: 0,
 	cash: 10000,
+	lockedCash: 0,
 	balance: 10000,
 	transactions: [],
 }
@@ -48,27 +50,11 @@ const tradingReducer = (state = initialState, action) => {
 			}
 		}
 		case actionTypes.EXECUTE_TRANSACTIONS: {
-			const newState = {
-				...state,
-				transactions: state.transactions.concat(action.transactions),
-			}
-			const marketTransaction = action.transactions.find((t) => t.category == OrderCategories.Market && t.status == OrderStatus.Queued)
-
-			if (marketTransaction) {
-				const stateWithoutMarketTransaction = { ...state, transactions: newState.transactions.filter((t) => t.id != marketTransaction.id) }
-				const stateWithAllTransactions = executeTransaction(marketTransaction, stateWithoutMarketTransaction)
-
-				return stateWithAllTransactions
-			} else {
-				return newState
-			}
+			const newState = queueTransactions(action.transactions, state)
+			return newState
 		}
 		case actionTypes.CANCEL_TRANSACTION: {
-			const newState = {
-				...state,
-				transactions: state.transactions.filter((transaction) => transaction.id != action.transactionId),
-			}
-
+			const newState = cancelTransaction(action.transactionId, state)
 			return newState
 		}
 		case actionTypes.CLOSE_ALL_ORDERS: {

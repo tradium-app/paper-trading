@@ -53,12 +53,12 @@ const OrderForm = ({ ...others }) => {
 	}
 
 	const handleOrder = (values, setErrors, setStatus) => {
-		if (orderType == OrderTypes.Buy && trading.cash < values.quantity * trading.candle.close) {
+		if (orderType == OrderTypes.Buy && trading.cash - trading.lockedCash < values.quantity * trading.candle.close) {
 			setErrors({ submit: 'Not enough Cash balance.' })
 			return
 		}
 
-		if (orderType == OrderTypes.Sell && trading.quantity < values.quantity) {
+		if (orderType == OrderTypes.Sell && trading.quantity - trading.lockedQuantity < values.quantity) {
 			setErrors({ submit: 'Not enough Stocks.' })
 			return
 		}
@@ -78,6 +78,7 @@ const OrderForm = ({ ...others }) => {
 		const stopLessTransaction = values.isStopLossEnabled && {
 			...transaction,
 			id: transaction.id + 1,
+			type: orderType == OrderTypes.Buy ? OrderTypes.Sell : OrderTypes.Buy,
 			price: values.stopLossPrice,
 			amt: values.quantity * values.stopLossPrice,
 		}
