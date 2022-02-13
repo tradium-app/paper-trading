@@ -197,7 +197,9 @@ const OrderForm = ({ ...others }) => {
 								<Box sx={{ height: '1vw' }}>
 									{errors.submit && <FormHelperText error>{errors.submit}</FormHelperText>}
 									{status == 'success' && (
-										<FormHelperText sx={{ color: theme.palette.success.dark }}>{'Order queued successfully.'}</FormHelperText>
+										<FormHelperText sx={{ color: theme.palette.success.dark }}>
+											{'Stop Order queued successfully.'}
+										</FormHelperText>
 									)}
 								</Box>
 

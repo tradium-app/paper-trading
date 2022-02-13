@@ -21,6 +21,7 @@ const tradingReducer = (state = initialState, action) => {
 			const candle = action.candle
 			state.transactions
 				.filter((t) => t.status == OrderStatus.Queued)
+				.sort((a, b) => a.id - b.id)
 				.forEach((transaction) => {
 					let newTransaction
 					if (
@@ -34,7 +35,7 @@ const tradingReducer = (state = initialState, action) => {
 
 					if (newTransaction) {
 						const stateWithoutCurrentTransaction = {
-							...state,
+							...newState,
 							transactions: newState.transactions.filter((t) => t.id != transaction.id),
 						}
 						newState = executeTransaction(newTransaction, stateWithoutCurrentTransaction)

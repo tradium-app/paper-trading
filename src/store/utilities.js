@@ -3,10 +3,9 @@ import { OrderStatus, OrderTypes } from 'views/trading/order/OrderForm'
 export const executeTransaction = (transaction, state) => {
 	transaction.amt = transaction.quantity * transaction.price
 	const newCash = transaction.type == OrderTypes.Buy ? state.cash - transaction.amt : state.cash + transaction.amt
-	const newLockedCash = transaction.type == OrderTypes.Buy ? state.lockedCash - transaction.amt : state.lockedCash + transaction.amt
+	const newLockedCash = transaction.type == OrderTypes.Buy ? state.lockedCash - transaction.amt : state.lockedCash
 	const newQuantity = transaction.type == OrderTypes.Buy ? state.quantity + transaction.quantity : state.quantity - transaction.quantity
-	const newLockedQuantity =
-		transaction.type == OrderTypes.Buy ? state.lockedQuantity + transaction.quantity : state.lockedQuantity - transaction.quantity
+	const newLockedQuantity = transaction.type == OrderTypes.Sell ? state.lockedQuantity - transaction.quantity : state.lockedQuantity
 	const newBalance = newCash + newQuantity * transaction.price
 	transaction.cash = newCash
 	transaction.status = OrderStatus.Executed
