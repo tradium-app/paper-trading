@@ -63,21 +63,29 @@ const OrderForm = ({ ...others }) => {
 			return
 		}
 
+		const transaction = {
+			id: Date.now(),
+			type: orderType,
+			category: OrderCategories.Stop,
+			symbol: trading.symbol,
+			quantity: values.quantity,
+			price: values.price,
+			amt: values.quantity * values.price,
+			time: trading.time,
+			status: OrderStatus.Queued,
+		}
+
+		const stopLessTransaction = values.isStopLossEnabled && {
+			...transaction,
+			price: values.stopLossPrice,
+			amt: values.quantity * values.stopLossPrice,
+		}
+
+		const transactions = stopLessTransaction ? [transaction, stopLessTransaction] : [transaction]
+
 		dispatch({
 			type: EXECUTE_TRANSACTIONS,
-			transactions: [
-				{
-					id: Date.now(),
-					type: orderType,
-					category: OrderCategories.Stop,
-					symbol: trading.symbol,
-					quantity: values.quantity,
-					price: values.price,
-					amt: values.quantity * values.price,
-					time: trading.time,
-					status: OrderStatus.Queued,
-				},
-			],
+			transactions,
 		})
 
 		setStatus('success')
@@ -150,8 +158,8 @@ const OrderForm = ({ ...others }) => {
 									<PriceInput
 										name="price"
 										value={values.price != 0 ? values.price : trading.candle.close}
-										marketPrice={trading.candle.close}
-										orderCategory={OrderCategories.Stop}
+										onBlur={handleBlur}
+										autoComplete="off"
 									/>
 									{touched.price && errors.price && <FormHelperText error>{errors.price}</FormHelperText>}
 								</FormControl>
@@ -165,12 +173,10 @@ const OrderForm = ({ ...others }) => {
 										autoComplete="off"
 									/>
 									{values.isStopLossEnabled && (
-										<OutlinedInput
+										<PriceInput
 											name="stopLossPrice"
-											type="number"
 											value={values.stopLossPrice != 0 ? values.stopLossPrice : trading.candle.close}
 											onBlur={handleBlur}
-											onChange={handleChange}
 											autoComplete="off"
 										/>
 									)}

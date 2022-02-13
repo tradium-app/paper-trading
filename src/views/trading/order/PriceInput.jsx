@@ -1,17 +1,10 @@
 import { useField } from 'formik'
 import { useEffect } from 'react'
-import { OrderCategories } from './OrderForm'
 import { OutlinedInput } from '@mui/material'
 
-const PriceInput = ({ name, value, orderCategory, marketPrice }) => {
+const PriceInput = ({ name, value, onBlur }) => {
 	const [field, meta, helpers] = useField({ name, value })
 	const { setValue, setTouched } = helpers
-
-	useEffect(() => {
-		if (orderCategory == OrderCategories.Market) {
-			setValue(marketPrice)
-		}
-	}, [marketPrice, orderCategory])
 
 	useEffect(() => {
 		setValue(value)
@@ -27,7 +20,7 @@ const PriceInput = ({ name, value, orderCategory, marketPrice }) => {
 				setValue(event.target.value)
 				event.preventDefault()
 			}}
-			disabled={orderCategory == OrderCategories.Market}
+			onBlur={onBlur}
 			autoComplete="off"
 		/>
 	)
