@@ -4,7 +4,9 @@ import { useTheme } from '@mui/material/styles'
 import {
 	Box,
 	Button,
+	Checkbox,
 	FormControl,
+	FormControlLabel,
 	FormHelperText,
 	Grid,
 	InputLabel,
@@ -43,17 +45,10 @@ const OrderForm = ({ ...others }) => {
 	const trading = useSelector((state) => state.trading)
 	const dispatch = useDispatch()
 	const [orderType, setOrderType] = useState(OrderTypes.Buy)
-	const [orderCategory, setOrderCategory] = useState(OrderCategories.Market)
 
 	const handleOrderTypeClick = (_, orderType) => {
 		if (orderType != null) {
 			setOrderType(orderType)
-		}
-	}
-
-	const handleOrderCategoryClick = (_, orderCategory) => {
-		if (orderCategory != null) {
-			setOrderCategory(orderCategory)
 		}
 	}
 
@@ -68,19 +63,17 @@ const OrderForm = ({ ...others }) => {
 			return
 		}
 
-		const price = orderCategory == OrderCategories.Market ? trading.candle.close : values.price
-
 		dispatch({
 			type: EXECUTE_TRANSACTIONS,
 			transactions: [
 				{
 					id: Date.now(),
 					type: orderType,
-					category: orderCategory,
+					category: OrderCategories.Stop,
 					symbol: trading.symbol,
 					quantity: values.quantity,
-					price,
-					amt: values.quantity * price,
+					price: values.price,
+					amt: values.quantity * values.price,
 					time: trading.time,
 					status: OrderStatus.Queued,
 				},
@@ -97,6 +90,8 @@ const OrderForm = ({ ...others }) => {
 							quantity: 10,
 							submit: null,
 							price: 0,
+							stopLossPrice: 0,
+							isStopLossEnabled: true,
 						}}
 						validationSchema={Yup.object().shape({
 							quantity: Yup.number().required('Quantity is required').positive().integer(),
@@ -129,15 +124,6 @@ const OrderForm = ({ ...others }) => {
 									</ToggleButton>
 								</ToggleButtonGroup>
 
-								<ToggleButtonGroup value={orderCategory} onChange={handleOrderCategoryClick} fullWidth exclusive sx={{ mt: 2 }}>
-									<ToggleButton value={OrderCategories.Market} color="success">
-										{OrderCategories.Market}
-									</ToggleButton>
-									<ToggleButton value={OrderCategories.Stop} color="error">
-										{OrderCategories.Stop}
-									</ToggleButton>
-								</ToggleButtonGroup>
-
 								<FormControl
 									error={Boolean(touched.quantity && errors.quantity)}
 									sx={{ ...theme.typography.customInput, mt: 2 }}
@@ -159,7 +145,33 @@ const OrderForm = ({ ...others }) => {
 
 								<FormControl error={Boolean(touched.price && errors.price)} sx={{ ...theme.typography.customInput, mt: 1 }} fullWidth>
 									<InputLabel shrink>Price</InputLabel>
-									<PriceInput name="price" value={values.price} marketPrice={trading.candle.close} orderCategory={orderCategory} />
+									<PriceInput
+										name="price"
+										value={values.price != 0 ? values.price : trading.candle.close}
+										marketPrice={trading.candle.close}
+										orderCategory={OrderCategories.Stop}
+									/>
+									{touched.price && errors.price && <FormHelperText error>{errors.price}</FormHelperText>}
+								</FormControl>
+
+								<FormControl error={Boolean(touched.price && errors.price)} sx={{ ...theme.typography.customInput, mt: 1 }} fullWidth>
+									<FormControlLabel
+										name="isStopLossEnabled"
+										label="Stop Loss Price"
+										control={<Checkbox checked={values.isStopLossEnabled} />}
+										onChange={handleChange}
+										autoComplete="off"
+									/>
+									{values.isStopLossEnabled && (
+										<OutlinedInput
+											name="stopLossPrice"
+											type="number"
+											value={values.stopLossPrice != 0 ? values.stopLossPrice : trading.candle.close}
+											onBlur={handleBlur}
+											onChange={handleChange}
+											autoComplete="off"
+										/>
+									)}
 									{touched.price && errors.price && <FormHelperText error>{errors.price}</FormHelperText>}
 								</FormControl>
 

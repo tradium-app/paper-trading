@@ -13,11 +13,15 @@ const PriceInput = ({ name, value, orderCategory, marketPrice }) => {
 		}
 	}, [marketPrice, orderCategory])
 
+	useEffect(() => {
+		setValue(value)
+	}, [value])
+
 	return (
 		<OutlinedInput
 			name="price"
 			type="number"
-			value={value}
+			value={field.value}
 			onChange={(event) => {
 				setTouched(true)
 				setValue(event.target.value)
