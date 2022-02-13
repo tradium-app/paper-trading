@@ -64,7 +64,7 @@ const OrderForm = ({ ...others }) => {
 		}
 
 		const transaction = {
-			id: Math.floor(Math.random() * 1000),
+			id: Date.now(),
 			type: orderType,
 			category: OrderCategories.Stop,
 			symbol: trading.symbol,
