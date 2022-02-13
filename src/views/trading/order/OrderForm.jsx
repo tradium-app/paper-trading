@@ -52,7 +52,7 @@ const OrderForm = ({ ...others }) => {
 		}
 	}
 
-	const handleOrder = (values, setErrors) => {
+	const handleOrder = (values, setErrors, setStatus) => {
 		if (orderType == OrderTypes.Buy && trading.cash < values.quantity * trading.candle.close) {
 			setErrors({ submit: 'Not enough Cash balance.' })
 			return
@@ -79,6 +79,8 @@ const OrderForm = ({ ...others }) => {
 				},
 			],
 		})
+
+		setStatus('success')
 	}
 
 	return (
@@ -97,23 +99,23 @@ const OrderForm = ({ ...others }) => {
 							quantity: Yup.number().required('Quantity is required').positive().integer(),
 						})}
 						onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
+							setStatus('')
 							try {
 								if (scriptedRef.current) {
-									handleOrder(values, setErrors)
-									setStatus({ success: true })
+									handleOrder(values, setErrors, setStatus)
 									setSubmitting(false)
 								}
 							} catch (err) {
 								console.error(err)
 								if (scriptedRef.current) {
-									setStatus({ success: false })
+									setStatus('fail')
 									setErrors({ submit: err.message })
 									setSubmitting(false)
 								}
 							}
 						}}
 					>
-						{({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
+						{({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values, status }) => (
 							<form noValidate onSubmit={handleSubmit} {...others}>
 								<ToggleButtonGroup fullWidth value={orderType} exclusive onChange={handleOrderTypeClick}>
 									<ToggleButton value={OrderTypes.Buy} color="success">
@@ -184,7 +186,12 @@ const OrderForm = ({ ...others }) => {
 									</Typography>
 								</Stack>
 
-								<Box sx={{ height: '1vw' }}>{errors.submit && <FormHelperText error>{errors.submit}</FormHelperText>}</Box>
+								<Box sx={{ height: '1vw' }}>
+									{errors.submit && <FormHelperText error>{errors.submit}</FormHelperText>}
+									{status == 'success' && (
+										<FormHelperText sx={{ color: theme.palette.success.dark }}>{'Order queued successfully.'}</FormHelperText>
+									)}
+								</Box>
 
 								{orderType == OrderTypes.Buy && (
 									<Box sx={{ mt: 2 }}>
